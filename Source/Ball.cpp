@@ -63,3 +63,13 @@ void Ball::multiplyVector(float x_scalar, float y_scalar)
 {
     direction.multiplyBy(x_scalar, y_scalar);
 }
+
+void Ball::xPos(float new_x)
+{
+    x = new_x;
+}
+
+void Ball::yPos(float new_y)
+{
+    y = new_y;
+}

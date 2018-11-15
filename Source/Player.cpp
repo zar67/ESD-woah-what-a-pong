@@ -58,12 +58,12 @@ int Player::paddleHeight()
 
 void Player::moveUp()
 {
-    y -= speed;
+    y -= 20 * speed;
 }
 
 void Player::moveDown()
 {
-    y += speed;
+    y += 20 * speed;
 }
 
 int Player::playerScore()

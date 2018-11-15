@@ -22,6 +22,9 @@ public:
     void resetSize();
     void resetSpeed();
 
+    void xPos(float new_x);
+    void yPos(float new_y);
+
     // Getters
     int xPos();
     int yPos();

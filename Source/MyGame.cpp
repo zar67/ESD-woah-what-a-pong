@@ -27,8 +27,9 @@
 
 // BUGS
 // TODO: Fix right paddle collision (somehow)
-// TODO: Made padddle movement smoother
+// TODO: Made paddle movement smoother
 // TODO: Load font into game
+// TODO: Stop paddles going offscreen
 
 MyGame::MyGame()
 {
@@ -205,16 +206,20 @@ int MyGame::collisionDetection(float x_pos, float y_pos)
         return HIT_TB;
     }
     else if (x_pos <= player_one.xPos() + player_one.paddleWidth() &&
-        y_pos <= player_one.yPos() + player_one.paddleHeight() &&
-        y_pos >= player_one.yPos())
+             x_pos >= player_one.xPos() &&
+             y_pos <= player_one.yPos() + player_one.paddleHeight() &&
+             y_pos >= player_one.yPos())
     {
-        // Has hit player one's bat
+        // Has hit player one's paddle
         return HIT_LEFT_PADDLE;
     }
     else if (x_pos >= player_two.xPos() &&
-        y_pos <= player_two.yPos() + player_two.paddleHeight() &&
-        y_pos >= player_two.yPos())
+             x_pos <= player_two.xPos() + player_two.paddleWidth() &&
+             y_pos <= player_two.yPos() + player_two.paddleHeight() &&
+             y_pos >= player_two.yPos())
     {
+        // Has hit player two's paddle
+        std::cout << ball.xPos() << "  " << ball.yPos() << std::endl;
         return HIT_RIGHT_PADDLE;
     }
     else
@@ -377,9 +382,20 @@ void MyGame::update(const ASGE::GameTime &us)
             player_one.updateScore(1);
             ball.reset();
         }
-        if (hit == HIT_LEFT_PADDLE || hit == HIT_RIGHT_PADDLE)
+        if (hit == HIT_LEFT_PADDLE)
         {
             ball.multiplyVector(-1, 1);
+            ball.xPos(player_one.xPos() + player_one.paddleWidth() + 1);
+        }
+        if (hit == HIT_RIGHT_PADDLE)
+        {
+            ball.multiplyVector(-1, 1);
+            ball.xPos(player_two.xPos() - ball.ballSize() - 1);
+        }
+
+        if (player_one.playerScore() == 10 || player_two.playerScore() == 10)
+        {
+            screen_open = GAME_OVER_SCREEN;
         }
     }
 }

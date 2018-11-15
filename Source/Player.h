@@ -34,7 +34,7 @@ public:
 private:
     int start_width = 20;
     int start_height = 120;
-    float start_speed = 20;
+    float start_speed = 2;
     int score = 0;
 
     int start_x;
