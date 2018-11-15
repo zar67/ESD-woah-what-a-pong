@@ -15,8 +15,7 @@
 #define GAME_OVER_SCREEN 3
 #define QUIT_SCREEN 4
 
-#define TOP_BOUNDARY 85
-#define BOTTOM_BOUNDARY 110
+#define BOUNDARY 85
 
 #define NOT_HIT 0
 #define HIT_LEFT_WALL 1
@@ -26,10 +25,8 @@
 #define HIT_RIGHT_PADDLE 5
 
 // BUGS
-// TODO: Fix right paddle collision (somehow)
-// TODO: Made paddle movement smoother
+// TODO: Make paddle movement smoother
 // TODO: Load font into game
-// TODO: Stop paddles going offscreen
 
 MyGame::MyGame()
 {
@@ -38,6 +35,7 @@ MyGame::MyGame()
     game_name = "PING";
 }
 
+// Destructor of MyGame Class
 MyGame::~MyGame()
 {
     this->inputs->unregisterCallback(key_callback_id);
@@ -188,38 +186,44 @@ void MyGame::resetGame()
     ball.reset();
     player_one.reset();
     player_two.reset();
-
 }
 
-int MyGame::collisionDetection(float x_pos, float y_pos)
+int MyGame::collisionDetection()
 {
-    if (x_pos <= 0)
+    float ball_size = ball.ballSize();
+
+    float ball_top_y = ball.yPos();
+    float ball_bottom_y = ball_top_y + ball_size;
+
+    float ball_left_x = ball.xPos();
+    float ball_right_x = ball_left_x + ball_size;
+
+    if (ball_left_x <= -ball_size)
     {
         return HIT_LEFT_WALL;
     }
-    else if (x_pos >= game_width)
+    else if (ball_right_x >= game_width + ball_size)
     {
         return HIT_RIGHT_WALL;
     }
-    else if (y_pos <= TOP_BOUNDARY || y_pos >= (game_height - BOTTOM_BOUNDARY))
+    else if (ball_top_y <= BOUNDARY || ball_bottom_y >= (game_height - BOUNDARY))
     {
         return HIT_TB;
     }
-    else if (x_pos <= player_one.xPos() + player_one.paddleWidth() &&
-             x_pos >= player_one.xPos() &&
-             y_pos <= player_one.yPos() + player_one.paddleHeight() &&
-             y_pos >= player_one.yPos())
+    // If left coordinates of the ball are within the x and y of the paddle
+    //      IF x <= player_x + player_width
+    //      IF top_y >= player_y and top_y <= player_y + player_height
+    //      OR bottom_y >= player_y and bottom_y <= player_y + player_height
+    else if (ball_left_x <= (player_one.xPos() + player_one.paddleWidth()) &&
+            ((ball_top_y >= player_one.yPos() && ball_top_y <= (player_one.yPos() + player_one.paddleHeight())) ||
+            (ball_bottom_y >= player_one.yPos() && ball_bottom_y <= (player_one.yPos() + player_one.paddleHeight()))))
     {
-        // Has hit player one's paddle
         return HIT_LEFT_PADDLE;
     }
-    else if (x_pos >= player_two.xPos() &&
-             x_pos <= player_two.xPos() + player_two.paddleWidth() &&
-             y_pos <= player_two.yPos() + player_two.paddleHeight() &&
-             y_pos >= player_two.yPos())
+    else if (ball_right_x >= player_two.xPos() &&
+            ((ball_top_y >= player_two.yPos() && ball_top_y <= (player_two.yPos() + player_two.paddleHeight())) ||
+            (ball_bottom_y >= player_two.yPos() && ball_bottom_y <= (player_two.yPos() + player_two.paddleHeight()))))
     {
-        // Has hit player two's paddle
-        std::cout << ball.xPos() << "  " << ball.yPos() << std::endl;
         return HIT_RIGHT_PADDLE;
     }
     else
@@ -327,19 +331,19 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
     }
     else //screen_open == GAME_SCREEN
     {
-        if (key->key == ASGE::KEYS::KEY_W)
+        if (key->key == ASGE::KEYS::KEY_W && player_one.yPos() > TOP_BOUNDARY)
         {
             player_one.moveUp();
         }
-        if (key->key == ASGE::KEYS::KEY_S)
+        if (key->key == ASGE::KEYS::KEY_S && player_one.yPos() + player_one.paddleHeight() < game_height - BOTTOM_BOUNDARY)
         {
             player_one.moveDown();
         }
-        if (key->key == ASGE::KEYS::KEY_UP)
+        if (key->key == ASGE::KEYS::KEY_UP && player_two.yPos() > TOP_BOUNDARY)
         {
             player_two.moveUp();
         }
-        if (key->key == ASGE::KEYS::KEY_DOWN)
+        if (key->key == ASGE::KEYS::KEY_DOWN && player_two.yPos() + player_two.paddleHeight() < game_height - BOTTOM_BOUNDARY)
         {
             player_two.moveDown();
         }
@@ -367,7 +371,7 @@ void MyGame::update(const ASGE::GameTime &us)
         paddle_two->xPos(player_two.xPos());
         paddle_two->yPos(player_two.yPos());
 
-        int hit = collisionDetection(ball.xPos(), ball.yPos());
+        int hit = collisionDetection();
         if (hit == HIT_TB)
         {
             ball.multiplyVector(1, -1);
@@ -385,12 +389,10 @@ void MyGame::update(const ASGE::GameTime &us)
         if (hit == HIT_LEFT_PADDLE)
         {
             ball.multiplyVector(-1, 1);
-            ball.xPos(player_one.xPos() + player_one.paddleWidth() + 1);
         }
         if (hit == HIT_RIGHT_PADDLE)
         {
             ball.multiplyVector(-1, 1);
-            ball.xPos(player_two.xPos() - ball.ballSize() - 1);
         }
 
         if (player_one.playerScore() == 10 || player_two.playerScore() == 10)

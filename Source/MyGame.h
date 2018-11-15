@@ -17,7 +17,7 @@ public:
 
 private:
     void keyHandler(const ASGE::SharedEventData data);
-    int collisionDetection(float x_pos, float y_pos);
+    int collisionDetection();
     void resetGame();
 
     int  key_callback_id = -1;	        /**< Key Input Callback ID. */
