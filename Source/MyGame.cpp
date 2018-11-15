@@ -28,6 +28,8 @@
 // TODO: Make paddle movement smoother
 // TODO: Load font into game
 
+// MyGame constructor
+// Sets the game dimensions and name
 MyGame::MyGame()
 {
     game_width = 1024;
@@ -36,6 +38,7 @@ MyGame::MyGame()
 }
 
 // Destructor of MyGame Class
+// Unregisters the key and mouse callback and empties all the sprites
 MyGame::~MyGame()
 {
     this->inputs->unregisterCallback(key_callback_id);
@@ -46,10 +49,83 @@ MyGame::~MyGame()
         delete background;
         background = nullptr;
     }
+    if (foreground)
+    {
+        delete foreground;
+        foreground = nullptr;
+    }
+    if (main_title)
+    {
+        delete main_title;
+        main_title = nullptr;
+    }
+    if (controls_title)
+    {
+        delete controls_title;
+        controls_title = nullptr;
+    }
+    if (game_over_title)
+    {
+        delete game_over_title;
+        game_over_title = nullptr;
+    }
+    if (quit_title)
+    {
+        delete quit_title;
+        quit_title = nullptr;
+    }
+    if (ball_sprite)
+    {
+        delete ball_sprite;
+        ball_sprite = nullptr;
+    }
+    if (paddle_one)
+    {
+        delete paddle_one;
+        paddle_one = nullptr;
+    }
+    if (paddle_two)
+    {
+        delete paddle_two;
+        paddle_two = nullptr;
+    }
+    if (arrow_one)
+    {
+        delete arrow_one;
+        arrow_one = nullptr;
+    }
+    if (arrow_two)
+    {
+        delete arrow_two;
+        arrow_two = nullptr;
+    }
+    if (arrow_three)
+    {
+        delete arrow_three;
+        arrow_three = nullptr;
+    }
+    if (arrow_four)
+    {
+        delete arrow_four;
+        arrow_four = nullptr;
+    }
+    if (player_one_controls)
+    {
+        delete player_one_controls;
+        player_one_controls = nullptr;
+    }
+    if (player_two_controls)
+    {
+        delete player_two_controls;
+        player_two_controls = nullptr;
+    }
 }
 
+// Initialises the game
+// Initialises the API and loads all of the sprites
 bool MyGame::init()
 {
+    // Return false if API wasn't initialised correctly
     if (!initAPI())
         return false;
 
@@ -57,7 +133,7 @@ bool MyGame::init()
     inputs->use_threads = false;
 
     key_callback_id = inputs->addCallbackFnc(ASGE::E_KEY, &MyGame::keyHandler,
-            this);
+                                             this);
 
     // Load the Background sprite
     background = renderer->createRawSprite();
@@ -178,9 +254,13 @@ bool MyGame::init()
     player_two_controls->yPos(234);
 
     toggleFPS();
+
+    // API and Game was initialised correctly
     return true;
 }
 
+// Resets the game back to it's original values (score, posisions, etc...)
+// so a new game can be played
 void MyGame::resetGame()
 {
     ball.reset();
@@ -188,6 +268,8 @@ void MyGame::resetGame()
     player_two.reset();
 }
 
+// Detects if the ball has hit anything
+// Returns an integer representing what the ball has hit
 int MyGame::collisionDetection()
 {
     float ball_size = ball.ballSize();
@@ -206,7 +288,8 @@ int MyGame::collisionDetection()
     {
         return HIT_RIGHT_WALL;
     }
-    else if (ball_top_y <= BOUNDARY || ball_bottom_y >= (game_height - BOUNDARY))
+    else if (ball_top_y <= BOUNDARY ||
+             ball_bottom_y >= (game_height - BOUNDARY))
     {
         return HIT_TB;
     }
@@ -214,15 +297,21 @@ int MyGame::collisionDetection()
     //      IF x <= player_x + player_width
     //      IF top_y >= player_y and top_y <= player_y + player_height
     //      OR bottom_y >= player_y and bottom_y <= player_y + player_height
-    else if (ball_left_x <= (player_one.xPos() + player_one.paddleWidth()) &&
-            ((ball_top_y >= player_one.yPos() && ball_top_y <= (player_one.yPos() + player_one.paddleHeight())) ||
-            (ball_bottom_y >= player_one.yPos() && ball_bottom_y <= (player_one.yPos() + player_one.paddleHeight()))))
+    else if (ball_left_x <= (player_one.xPos() + player_one.paddleWidth()) && 
+            ball_left_x >= player_one.xPos() + (player_one.paddleWidth() - 1) &&
+            ((ball_top_y >= player_one.yPos() &&
+              ball_top_y <= (player_one.yPos() + player_one.paddleHeight())) ||
+             (ball_bottom_y >= player_one.yPos() &&
+             ball_bottom_y <= (player_one.yPos() + player_one.paddleHeight()))))
     {
         return HIT_LEFT_PADDLE;
     }
     else if (ball_right_x >= player_two.xPos() &&
-            ((ball_top_y >= player_two.yPos() && ball_top_y <= (player_two.yPos() + player_two.paddleHeight())) ||
-            (ball_bottom_y >= player_two.yPos() && ball_bottom_y <= (player_two.yPos() + player_two.paddleHeight()))))
+            ball_right_x <= player_two.xPos() + 1 &&
+            ((ball_top_y >= player_two.yPos() &&
+            ball_top_y <= (player_two.yPos() + player_two.paddleHeight())) ||
+            (ball_bottom_y >= player_two.yPos() &&
+            ball_bottom_y <= (player_two.yPos() + player_two.paddleHeight()))))
     {
         return HIT_RIGHT_PADDLE;
     }
@@ -232,6 +321,9 @@ int MyGame::collisionDetection()
     }
 }
 
+// Handles all the key inputs for the game
+// If in the menu will toggle between options and have the option to exit
+// If in the game will handle the movement of the paddles
 void MyGame::keyHandler(const ASGE::SharedEventData data)
 {
     auto key = static_cast<const ASGE::KeyEvent*>(data.get());
@@ -267,6 +359,7 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
                 else // screen_open == GAME_OVER_SCREEN
                 {
                     screen_open = MENU_SCREEN;
+                    menu_option = 0;
                     resetGame();
                 }
             }
@@ -282,7 +375,7 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
         }
         if (key->key == ASGE::KEYS::KEY_ESCAPE)
         {
-            screen_open = QUIT_SCREEN;
+            signalExit();
         }
     }
     else if (screen_open == QUIT_SCREEN)
@@ -313,17 +406,22 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
         if (key->key == ASGE::KEYS::KEY_ENTER &&
             key->action == ASGE::KEYS::KEY_RELEASED)
         {
+            std::cout << menu_option << std::endl;
             if (menu_option == 0)
             {
+                std::cout << "Resuming";
                 screen_open = GAME_SCREEN;
             }
-            if (menu_option == 1)
+            else if (menu_option == 1)
             {
+                std::cout << "Main Menu-ing";
                 screen_open = MENU_SCREEN;
+                menu_option = 0;
                 resetGame();
             }
-            else // menu_option == 2
+            else if (menu_option == 2)
             {
+                std::cout << "Quitting";
                 // Exit
                 signalExit();
             }
@@ -331,29 +429,39 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
     }
     else //screen_open == GAME_SCREEN
     {
-        if (key->key == ASGE::KEYS::KEY_W && player_one.yPos() > TOP_BOUNDARY)
+        if (key->key == ASGE::KEYS::KEY_W && player_one.yPos() > BOUNDARY)
         {
             player_one.moveUp();
         }
-        if (key->key == ASGE::KEYS::KEY_S && player_one.yPos() + player_one.paddleHeight() < game_height - BOTTOM_BOUNDARY)
+        if (key->key == ASGE::KEYS::KEY_S &&
+            player_one.yPos() + player_one.paddleHeight() <
+            game_height - BOUNDARY)
         {
             player_one.moveDown();
         }
-        if (key->key == ASGE::KEYS::KEY_UP && player_two.yPos() > TOP_BOUNDARY)
+        if (key->key == ASGE::KEYS::KEY_UP && player_two.yPos() > BOUNDARY)
         {
             player_two.moveUp();
         }
-        if (key->key == ASGE::KEYS::KEY_DOWN && player_two.yPos() + player_two.paddleHeight() < game_height - BOTTOM_BOUNDARY)
+        if (key->key == ASGE::KEYS::KEY_DOWN &&
+            player_two.yPos() + player_two.paddleHeight() <
+            game_height - BOUNDARY)
         {
             player_two.moveDown();
         }
         if (key->key == ASGE::KEYS::KEY_ESCAPE)
         {
             screen_open = QUIT_SCREEN;
+            menu_option = 0;
         }
     }
 }
 
+// Updates the game
+// Moves the ball and updates the positions of the sprite with the positions
+// of the classes
+// TODO: Simplify by having the sprites in the classes?
+// Runs the collision detection and acts based on what the ball has hit
 void MyGame::update(const ASGE::GameTime &us)
 {
     if (screen_open == GAME_SCREEN)
@@ -402,6 +510,9 @@ void MyGame::update(const ASGE::GameTime &us)
     }
 }
 
+// Renders the sprites and text dependant on which screen the user is on
+// Renders text in the menus based on the current option to show the user which
+// option they have selected so far
 void MyGame::render(const ASGE::GameTime &us)
 {
     renderer->renderSprite(*background);
@@ -433,8 +544,10 @@ void MyGame::render(const ASGE::GameTime &us)
         renderer->renderSprite(*player_one_controls);
         renderer->renderSprite(*player_two_controls);
 
-        renderer->renderText("Press ENTER to start the game", 262, 600, 1.5, ASGE::COLOURS::WHITE);
-        renderer->renderText("Press ESC to quit the game", 280, 675, 1.5, ASGE::COLOURS::WHITE);
+        renderer->renderText("Press ENTER to start the game",
+                             262, 600, 1.5, ASGE::COLOURS::WHITE);
+        renderer->renderText("Press ESC to quit the game",
+                             280, 675, 1.5, ASGE::COLOURS::WHITE);
 
     }
     if (screen_open == GAME_SCREEN)
