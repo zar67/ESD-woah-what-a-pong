@@ -4,7 +4,7 @@
 
 #include "Player.h"
 
-Player::Player(int x_start, int y_start)
+Player::Player(float x_start, float y_start)
 {
     start_x = x_start;
     start_y = y_start;
@@ -36,12 +36,12 @@ void Player::resetPosition()
     y = start_y;
 }
 
-int Player::xPos()
+float Player::xPos()
 {
     return x;
 }
 
-int Player::yPos()
+float Player::yPos()
 {
     return y;
 }

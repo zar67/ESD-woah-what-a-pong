@@ -467,9 +467,13 @@ void MyGame::update(const ASGE::GameTime &us)
     if (screen_open == GAME_SCREEN)
     {
         // Move Ball
-        ball.move();
-        ball_sprite->xPos(ball.xPos());
-        ball_sprite->yPos(ball.yPos());
+        float newX = ball.xPos() + (ball.ballSpeed() * (us.delta_time.count()/ 1000.f));
+        ball.xPos(newX);
+        ball_sprite->xPos(newX);
+
+        float newY = ball.yPos() + (ball.ballSpeed() * (us.delta_time.count()/ 1000.f));
+        ball.yPos(newY);
+        ball_sprite->yPos(newY);
 
         // Move Player One
         paddle_one->xPos(player_one.xPos());

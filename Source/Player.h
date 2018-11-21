@@ -32,15 +32,15 @@ public:
     int paddleHeight();
 
 private:
-    int start_width = 20;
-    int start_height = 120;
+    float start_width = 20;
+    float start_height = 120;
     float start_speed = 2;
     int score = 0;
 
-    int start_x;
-    int start_y;
-    int x;
-    int y;
+    float start_x;
+    float start_y;
+    float x;
+    float y;
     int width;
     int height;
     float speed;

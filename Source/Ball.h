@@ -14,7 +14,6 @@ public:
     Ball();
 
     // Setters
-    void move();
     void multiplyVector(float x_scalar, float y_scalar);
 
     void reset();
@@ -26,9 +25,12 @@ public:
     void yPos(float new_y);
 
     // Getters
-    int xPos();
-    int yPos();
+    float xPos();
+    float yPos();
     int ballSize();
+    float xDir();
+    float yDir();
+    float ballSpeed();
 
 private:
     float start_x = 503;
@@ -39,7 +41,7 @@ private:
     float x;
     float y;
     float speed;
-    float size;
+    int size;
     Vector direction = Vector(0,0);
 };
 

@@ -10,12 +10,6 @@ Ball::Ball()
     reset();
 }
 
-void Ball::move()
-{
-    x += direction.xPos() * speed;
-    y += direction.yPos() * speed;
-}
-
 void Ball::resetPosition()
 {
     x = start_x;
@@ -44,12 +38,12 @@ void Ball::reset()
     direction.normalise();
 }
 
-int Ball::xPos()
+float Ball::xPos()
 {
     return x;
 }
 
-int Ball::yPos()
+float Ball::yPos()
 {
     return y;
 }
@@ -72,4 +66,19 @@ void Ball::xPos(float new_x)
 void Ball::yPos(float new_y)
 {
     y = new_y;
+}
+
+float Ball::xDir()
+{
+    return direction.xPos();
+}
+
+float Ball::yDir()
+{
+    return direction.yPos();
+}
+
+float Ball::ballSpeed()
+{
+    return speed;
 }
