@@ -15,7 +15,7 @@
 #define GAME_OVER_SCREEN 3
 #define QUIT_SCREEN 4
 
-#define BOUNDARY 85
+#define BOUNDARY 85.0
 
 #define NOT_HIT 0
 #define HIT_LEFT_WALL 1
@@ -406,22 +406,18 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
         if (key->key == ASGE::KEYS::KEY_ENTER &&
             key->action == ASGE::KEYS::KEY_RELEASED)
         {
-            std::cout << menu_option << std::endl;
             if (menu_option == 0)
             {
-                std::cout << "Resuming";
                 screen_open = GAME_SCREEN;
             }
             else if (menu_option == 1)
             {
-                std::cout << "Main Menu-ing";
                 screen_open = MENU_SCREEN;
                 menu_option = 0;
                 resetGame();
             }
             else if (menu_option == 2)
             {
-                std::cout << "Quitting";
                 // Exit
                 signalExit();
             }
@@ -467,11 +463,11 @@ void MyGame::update(const ASGE::GameTime &us)
     if (screen_open == GAME_SCREEN)
     {
         // Move Ball
-        float newX = ball.xPos() + (ball.ballSpeed() * (us.delta_time.count()/ 1000.f));
+        float newX = ball.xPos() + (ball.ballSpeed() * ball.xDir() * (us.delta_time.count()/ 1000.f));
         ball.xPos(newX);
         ball_sprite->xPos(newX);
 
-        float newY = ball.yPos() + (ball.ballSpeed() * (us.delta_time.count()/ 1000.f));
+        float newY = ball.yPos() + (ball.ballSpeed() * ball.yDir() * (us.delta_time.count()/ 1000.f));
         ball.yPos(newY);
         ball_sprite->yPos(newY);
 
@@ -486,7 +482,7 @@ void MyGame::update(const ASGE::GameTime &us)
         int hit = collisionDetection();
         if (hit == HIT_TB)
         {
-            ball.multiplyVector(1, -1);
+            ball.multiplyVector(1.0, -1.0);
         }
         if (hit == HIT_LEFT_WALL)
         {
@@ -500,11 +496,11 @@ void MyGame::update(const ASGE::GameTime &us)
         }
         if (hit == HIT_LEFT_PADDLE)
         {
-            ball.multiplyVector(-1, 1);
+            ball.multiplyVector(-1.0, 1.0);
         }
         if (hit == HIT_RIGHT_PADDLE)
         {
-            ball.multiplyVector(-1, 1);
+            ball.multiplyVector(-1.0, 1.0);
         }
 
         if (player_one.playerScore() == 10 || player_two.playerScore() == 10)
@@ -512,6 +508,88 @@ void MyGame::update(const ASGE::GameTime &us)
             screen_open = GAME_OVER_SCREEN;
         }
     }
+}
+
+// Renders the main menu screen
+void MyGame::renderMainMenu()
+{
+    renderer->renderSprite(*main_title);
+
+    renderer->renderText(menu_option == 0 ? ">> Play" : "   Play",
+                         425, 350, 1.5, ASGE::COLOURS::WHITE);
+
+    renderer->renderText(menu_option == 1 ? ">> Quit" : "   Quit",
+                         425, 450, 1.5, ASGE::COLOURS::WHITE);
+}
+
+void MyGame::renderControls()
+{
+    renderer->renderSprite(*controls_title);
+    renderer->renderSprite(*paddle_one);
+    renderer->renderSprite(*paddle_two);
+
+    renderer->renderSprite(*arrow_one);
+    renderer->renderSprite(*arrow_two);
+    renderer->renderSprite(*arrow_three);
+    renderer->renderSprite(*arrow_four);
+
+    renderer->renderText("Player One", 256, 200, 1.0, ASGE::COLOURS::WHITE);
+    renderer->renderText("Player Two", 658, 200, 1.0, ASGE::COLOURS::WHITE);
+
+    renderer->renderSprite(*player_one_controls);
+    renderer->renderSprite(*player_two_controls);
+
+    renderer->renderText("Press ENTER to start the game",
+                         262, 600, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Press ESC to quit the game",
+                         280, 675, 1.5, ASGE::COLOURS::WHITE);
+}
+
+void MyGame::renderGameScreen()
+{
+    renderer->renderSprite(*foreground);
+
+    renderer->renderSprite(*ball_sprite);
+    renderer->renderSprite(*paddle_one);
+    renderer->renderSprite(*paddle_two);
+
+    std::string score_one = "Score: ";
+    score_one += std::to_string(player_one.playerScore());
+    renderer->renderText(score_one, 25, 738, 1.5, ASGE::COLOURS::WHITE);
+
+    std::string score_two = "Score: ";
+    score_two += std::to_string(player_two.playerScore());
+    renderer->renderText(score_two, 849, 738, 1.5, ASGE::COLOURS::WHITE);
+}
+
+void MyGame::renderGameOver()
+{
+    renderer->renderSprite(*game_over_title);
+
+    std::string score_one = "Player One Score: ";
+    score_one += std::to_string(player_one.playerScore());
+    renderer->renderText(score_one, 384, 300, 1.5, ASGE::COLOURS::WHITE);
+
+    std::string score_two = "Player Two Score: ";
+    score_two += std::to_string(player_two.playerScore());
+    renderer->renderText(score_two, 384, 400, 1.5, ASGE::COLOURS::WHITE);
+
+    renderer->renderText(menu_option == 0 ? ">> Main Menu" : "   Main Menu",
+                         400, 550, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText(menu_option == 1 ? ">> Quit" : "   Quit",
+                         400, 650, 1.5, ASGE::COLOURS::WHITE);
+}
+
+void MyGame::renderQuitScreen()
+{
+    renderer->renderSprite(*quit_title);
+
+    renderer->renderText(menu_option == 0 ? ">> Resume" : "   Resume",
+                         400, 350, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText(menu_option == 1 ? ">> Main Menu" : "   Main Menu",
+                         400, 450, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText(menu_option == 2 ? ">> Quit" : "   Quit",
+                         400, 550, 1.5, ASGE::COLOURS::WHITE);
 }
 
 // Renders the sprites and text dependant on which screen the user is on
@@ -523,80 +601,23 @@ void MyGame::render(const ASGE::GameTime &us)
 
     if (screen_open == MENU_SCREEN)
     {
-        renderer->renderSprite(*main_title);
-
-        renderer->renderText(menu_option == 0 ? ">> Play" : "   Play",
-                             425, 350, 1.5, ASGE::COLOURS::WHITE);
-
-        renderer->renderText(menu_option == 1 ? ">> Quit" : "   Quit",
-                             425, 450, 1.5, ASGE::COLOURS::WHITE);
+        renderMainMenu();
     }
     if (screen_open == CONTROLS_SCREEN)
     {
-        renderer->renderSprite(*controls_title);
-        renderer->renderSprite(*paddle_one);
-        renderer->renderSprite(*paddle_two);
-
-        renderer->renderSprite(*arrow_one);
-        renderer->renderSprite(*arrow_two);
-        renderer->renderSprite(*arrow_three);
-        renderer->renderSprite(*arrow_four);
-
-        renderer->renderText("Player One", 256, 200, 1.0, ASGE::COLOURS::WHITE);
-        renderer->renderText("Player Two", 658, 200, 1.0, ASGE::COLOURS::WHITE);
-
-        renderer->renderSprite(*player_one_controls);
-        renderer->renderSprite(*player_two_controls);
-
-        renderer->renderText("Press ENTER to start the game",
-                             262, 600, 1.5, ASGE::COLOURS::WHITE);
-        renderer->renderText("Press ESC to quit the game",
-                             280, 675, 1.5, ASGE::COLOURS::WHITE);
-
+        renderControls();
     }
     if (screen_open == GAME_SCREEN)
     {
-        renderer->renderSprite(*foreground);
-
-        renderer->renderSprite(*ball_sprite);
-        renderer->renderSprite(*paddle_one);
-        renderer->renderSprite(*paddle_two);
-
-        std::string score_one = "Score: ";
-        score_one += std::to_string(player_one.playerScore());
-        renderer->renderText(score_one, 25, 738, 1.5, ASGE::COLOURS::WHITE);
-
-        std::string score_two = "Score: ";
-        score_two += std::to_string(player_two.playerScore());
-        renderer->renderText(score_two, 849, 738, 1.5, ASGE::COLOURS::WHITE);
+        renderGameScreen();
     }
     if (screen_open == GAME_OVER_SCREEN)
     {
-        renderer->renderSprite(*game_over_title);
-
-        std::string score_one = "Player One Score: ";
-        score_one += std::to_string(player_one.playerScore());
-        renderer->renderText(score_one, 384, 300, 1.5, ASGE::COLOURS::WHITE);
-
-        std::string score_two = "Player Two Score: ";
-        score_two += std::to_string(player_two.playerScore());
-        renderer->renderText(score_two, 384, 400, 1.5, ASGE::COLOURS::WHITE);
-
-        renderer->renderText(menu_option == 0 ? ">> Main Menu" : "   Main Menu",
-                             400, 550, 1.5, ASGE::COLOURS::WHITE);
-        renderer->renderText(menu_option == 1 ? ">> Quit" : "   Quit",
-                             400, 650, 1.5, ASGE::COLOURS::WHITE);
+        renderGameOver();
     }
     if (screen_open == QUIT_SCREEN)
     {
-        renderer->renderSprite(*quit_title);
-
-        renderer->renderText(menu_option == 0 ? ">> Resume" : "   Resume",
-                             400, 350, 1.5, ASGE::COLOURS::WHITE);
-        renderer->renderText(menu_option == 1 ? ">> Main Menu" : "   Main Menu",
-                             400, 450, 1.5, ASGE::COLOURS::WHITE);
-        renderer->renderText(menu_option == 2 ? ">> Quit" : "   Quit",
-                             400, 550, 1.5, ASGE::COLOURS::WHITE);
+        renderQuitScreen();
     }
 }
 

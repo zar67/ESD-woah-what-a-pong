@@ -27,22 +27,22 @@ public:
     // Getters
     float xPos();
     float yPos();
-    int ballSize();
+    float ballSize();
     float xDir();
     float yDir();
     float ballSpeed();
 
 private:
-    float start_x = 503;
-    float start_y = 370;
-    int start_size = 26;
-    float start_speed = 0.5;
+    float start_x = 503.0;
+    float start_y = 370.0;
+    float start_size = 26.0;
+    float start_speed = 200.0;
 
     float x;
     float y;
     float speed;
-    int size;
-    Vector direction = Vector(0,0);
+    float size;
+    Vector direction = Vector(0.0,0.0);
 };
 
 

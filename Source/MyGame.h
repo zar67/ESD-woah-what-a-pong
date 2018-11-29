@@ -28,6 +28,12 @@ private:
     Player player_one = Player(50,324);
     Player player_two = Player(954,324);
 
+    void renderMainMenu();
+    void renderControls();
+    void renderGameScreen();
+    void renderGameOver();
+    void renderQuitScreen();
+
     //int font_index = 0;
     //ASGE::Font* game_font = nullptr;
 

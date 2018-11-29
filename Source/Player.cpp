@@ -46,24 +46,24 @@ float Player::yPos()
     return y;
 }
 
-int Player::paddleWidth()
+float Player::paddleWidth()
 {
     return width;
 }
 
-int Player::paddleHeight()
+float Player::paddleHeight()
 {
     return height;
 }
 
 void Player::moveUp()
 {
-    y -= 20 * speed;
+    y -= 20.0 * speed;
 }
 
 void Player::moveDown()
 {
-    y += 20 * speed;
+    y += 20.0 * speed;
 }
 
 int Player::playerScore()

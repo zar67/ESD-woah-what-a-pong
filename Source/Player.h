@@ -9,7 +9,7 @@
 class Player
 {
 public:
-    Player(int x_start, int y_start);
+    Player(float x_start, float y_start);
 
     // Setters
     void updateScore(int to_add);
@@ -23,26 +23,26 @@ public:
     void resetScore();
 
     // Getters
-    int xPos();
-    int yPos();
+    float xPos();
+    float yPos();
 
     int playerScore();
 
-    int paddleWidth();
-    int paddleHeight();
+    float paddleWidth();
+    float paddleHeight();
 
 private:
-    float start_width = 20;
-    float start_height = 120;
-    float start_speed = 2;
+    float start_width = 20.0;
+    float start_height = 120.0;
+    float start_speed = 2.0;
     int score = 0;
 
     float start_x;
     float start_y;
     float x;
     float y;
-    int width;
-    int height;
+    float width;
+    float height;
     float speed;
 };
 
