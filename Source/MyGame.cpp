@@ -259,7 +259,7 @@ bool MyGame::init()
     return true;
 }
 
-// Resets the game back to it's original values (score, posisions, etc...)
+// Resets the game back to it's original values (score, positions, etc...)
 // so a new game can be played
 void MyGame::resetGame()
 {
@@ -483,22 +483,30 @@ void MyGame::update(const ASGE::GameTime &us)
         if (hit == HIT_TB)
         {
             ball.multiplyVector(1.0, -1.0);
+            if (ball.yPos() <= BOUNDARY)
+            {
+                ball.yPos(BOUNDARY+1);
+            }
+            else
+            {
+                ball.yPos(game_height-BOUNDARY-ball.ballSize()-1);
+            }
         }
-        if (hit == HIT_LEFT_WALL)
+        else if (hit == HIT_LEFT_WALL)
         {
             player_two.updateScore(1);
             ball.reset();
         }
-        if (hit == HIT_RIGHT_WALL)
+        else if (hit == HIT_RIGHT_WALL)
         {
             player_one.updateScore(1);
             ball.reset();
         }
-        if (hit == HIT_LEFT_PADDLE)
+        else if (hit == HIT_LEFT_PADDLE)
         {
             ball.multiplyVector(-1.0, 1.0);
         }
-        if (hit == HIT_RIGHT_PADDLE)
+        else if (hit == HIT_RIGHT_PADDLE)
         {
             ball.multiplyVector(-1.0, 1.0);
         }

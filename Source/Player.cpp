@@ -12,6 +12,7 @@ Player::Player(float x_start, float y_start)
     resetPosition();
     resetSize();
     resetSpeed();
+    resetScore();
 }
 
 void Player::updateScore(int to_add)
@@ -78,9 +79,9 @@ void Player::resetScore()
 
 void Player::reset()
 {
-    void resetSize();
-    void resetSpeed();
-    void resetPosition();
-    void resetScore();
+    resetSize();
+    resetSpeed();
+    resetPosition();
+    resetScore();
 }
 

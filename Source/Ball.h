@@ -36,7 +36,7 @@ private:
     float start_x = 503.0;
     float start_y = 370.0;
     float start_size = 26.0;
-    float start_speed = 200.0;
+    float start_speed = 250.0;
 
     float x;
     float y;
