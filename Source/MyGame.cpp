@@ -44,80 +44,42 @@ MyGame::~MyGame()
     this->inputs->unregisterCallback(key_callback_id);
     this->inputs->unregisterCallback(mouse_callback_id);
 
-    if (background)
+    if (game_screen)
     {
-        delete background;
-        background = nullptr;
+        delete game_screen;
+        game_screen = nullptr;
     }
-    if (foreground)
+    if (menu_screen)
     {
-        delete foreground;
-        foreground = nullptr;
+        delete menu_screen;
+        menu_screen = nullptr;
     }
-    if (main_title)
+    if (controls_screen)
     {
-        delete main_title;
-        main_title = nullptr;
+        delete controls_screen;
+        controls_screen = nullptr;
     }
-    if (controls_title)
+    if (game_over_screen)
     {
-        delete controls_title;
-        controls_title = nullptr;
+        delete game_over_screen;
+        game_over_screen = nullptr;
     }
-    if (game_over_title)
+    if (quit_screen)
     {
-        delete game_over_title;
-        game_over_title = nullptr;
+        delete quit_screen;
+        quit_screen = nullptr;
     }
-    if (quit_title)
+    if (ball.getSprite())
     {
-        delete quit_title;
-        quit_title = nullptr;
+        ball.deleteSprite();
     }
-    if (ball_sprite)
+    if (player_one.getSprite())
     {
-        delete ball_sprite;
-        ball_sprite = nullptr;
+        player_one.deleteSprite();
     }
-    if (paddle_one)
+    if (player_two.getSprite())
     {
-        delete paddle_one;
-        paddle_one = nullptr;
-    }
-    if (paddle_two)
-    {
-        delete paddle_two;
-        paddle_two = nullptr;
-    }
-    if (arrow_one)
-    {
-        delete arrow_one;
-        arrow_one = nullptr;
-    }
-    if (arrow_two)
-    {
-        delete arrow_two;
-        arrow_two = nullptr;
-    }
-    if (arrow_three)
-    {
-        delete arrow_three;
-        arrow_three = nullptr;
-    }
-    if (arrow_four)
-    {
-        delete arrow_four;
-        arrow_four = nullptr;
-    }
-    if (player_one_controls)
-    {
-        delete player_one_controls;
-        player_one_controls = nullptr;
-    }
-    if (player_two_controls)
-    {
-        delete player_two_controls;
-        player_two_controls = nullptr;
+        player_two.deleteSprite();
     }
 }
 
@@ -135,123 +97,40 @@ bool MyGame::init()
     key_callback_id = inputs->addCallbackFnc(ASGE::E_KEY, &MyGame::keyHandler,
                                              this);
 
-    // Load the Background sprite
-    background = renderer->createRawSprite();
-    background->loadTexture("data/images/background.png");
-    background->width(1024);
-    background->height(768);
+    // Load the Game Screen sprite
+    game_screen = renderer->createRawSprite();
+    game_screen->loadTexture("data/images/game_screen.png");
+    game_screen->width(game_width);
+    game_screen->height(game_height);
 
-    // Load the Foreground sprite
-    foreground = renderer->createRawSprite();
-    foreground->loadTexture("data/images/foreground.png");
-    foreground->width(1024);
-    foreground->height(768);
+    // Load the Main Menu Screen sprite
+    menu_screen = renderer->createRawSprite();
+    menu_screen->loadTexture("data/images/menu_screen.png");
+    menu_screen->width(game_width);
+    menu_screen->height(game_height);
 
-    // Load the Ball sprite
-    ball_sprite = renderer->createRawSprite();
-    ball_sprite->loadTexture("data/images/ball.png");
-    ball_sprite->width(ball.ballSize());
-    ball_sprite->height(ball.ballSize());
-    ball_sprite->xPos(ball.xPos());
-    ball_sprite->yPos(ball.yPos());
+    // Load the Controls Screen Sprite
+    controls_screen = renderer->createRawSprite();
+    controls_screen->loadTexture("data/images/controls_screen.png");
+    controls_screen->width(game_width);
+    controls_screen->height(game_height);
 
-    // Load the Paddle (Player One) sprite
-    paddle_one = renderer->createRawSprite();
-    paddle_one->loadTexture("data/images/paddle.png");
-    paddle_one->width(player_one.paddleWidth());
-    paddle_one->height(player_one.paddleHeight());
-    paddle_one->xPos(player_one.xPos());
-    paddle_one->yPos(player_one.yPos());
+    // Load the Game Sprites
+    player_one.initSprite(renderer->createRawSprite());
+    player_two.initSprite(renderer->createRawSprite());
+    ball.initSprite(renderer->createRawSprite());
 
-    // Load the Paddle (Player Two) sprite
-    paddle_two = renderer->createRawSprite();
-    paddle_two->loadTexture("data/images/paddle.png");
-    paddle_two->width(player_two.paddleWidth());
-    paddle_two->height(player_two.paddleHeight());
-    paddle_two->xPos(player_two.xPos());
-    paddle_two->yPos(player_two.yPos());
+    // Load the Game Over Screen sprite
+    game_over_screen = renderer->createRawSprite();
+    game_over_screen->loadTexture("data/images/game_over_screen.png");
+    game_over_screen->width(game_width);
+    game_over_screen->height(game_height);
 
-    // Load the Main Title sprite
-    main_title = renderer->createRawSprite();
-    main_title->loadTexture("data/images/main_title.png");
-    main_title->width(500);
-    main_title->height(120);
-    main_title->xPos(262);
-    main_title->yPos(100);
-
-    // Load the Controls Title sprite
-    controls_title = renderer->createRawSprite();
-    controls_title->loadTexture("data/images/controls_title.png");
-    controls_title->width(500);
-    controls_title->height(120);
-    controls_title->xPos(262);
-    controls_title->yPos(50);
-
-    // Load the Game Over Title sprite
-    game_over_title = renderer->createRawSprite();
-    game_over_title->loadTexture("data/images/game_over_title.png");
-    game_over_title->width(500);
-    game_over_title->height(120);
-    game_over_title->xPos(262);
-    game_over_title->yPos(100);
-
-    // Load the Quit Title sprite
-    quit_title = renderer->createRawSprite();
-    quit_title->loadTexture("data/images/quit_title.png");
-    quit_title->width(500);
-    quit_title->height(120);
-    quit_title->xPos(262);
-    quit_title->yPos(100);
-
-    // Load the first Arrow sprite
-    arrow_one = renderer->createRawSprite();
-    arrow_one->loadTexture("data/images/arrow.png");
-    arrow_one->width(48);
-    arrow_one->height(120);
-    arrow_one->xPos(150);
-    arrow_one->yPos(234);
-
-    // Load the second Arrow sprite
-    arrow_two = renderer->createRawSprite();
-    arrow_two->loadTexture("data/images/arrow.png");
-    arrow_two->width(48);
-    arrow_two->height(120);
-    arrow_two->xPos(150);
-    arrow_two->yPos(394);
-    arrow_two->rotationInRadians(3.14159);
-
-    // Load the third Arrow sprite
-    arrow_three = renderer->createRawSprite();
-    arrow_three->loadTexture("data/images/arrow.png");
-    arrow_three->width(48);
-    arrow_three->height(120);
-    arrow_three->xPos(854);
-    arrow_three->yPos(234);
-
-    // Load the forth Arrow sprite
-    arrow_four = renderer->createRawSprite();
-    arrow_four->loadTexture("data/images/arrow.png");
-    arrow_four->width(48);
-    arrow_four->height(120);
-    arrow_four->xPos(854);
-    arrow_four->yPos(394);
-    arrow_four->rotationInRadians(3.14159);
-
-    // Load the Controls (Player One) sprite
-    player_one_controls = renderer->createRawSprite();
-    player_one_controls->loadTexture("data/images/player_one_controls.png");
-    player_one_controls->width(112);
-    player_one_controls->height(210);
-    player_one_controls->xPos(248);
-    player_one_controls->yPos(269);
-
-    // Load the Controls (Player Two) sprite
-    player_two_controls = renderer->createRawSprite();
-    player_two_controls->loadTexture("data/images/player_two_controls.png");
-    player_two_controls->width(225);
-    player_two_controls->height(280);
-    player_two_controls->xPos(556);
-    player_two_controls->yPos(234);
+    // Load the Quit Screen sprite
+    quit_screen = renderer->createRawSprite();
+    quit_screen->loadTexture("data/images/quit_screen.png");
+    quit_screen->width(game_width);
+    quit_screen->height(game_height);
 
     toggleFPS();
 
@@ -270,14 +149,14 @@ void MyGame::resetGame()
 
 // Detects if the ball has hit anything
 // Returns an integer representing what the ball has hit
-int MyGame::collisionDetection()
+int MyGame::collisionDetection(Ball ball_obj)
 {
-    float ball_size = ball.ballSize();
+    float ball_size = ball_obj.ballSize();
 
-    float ball_top_y = ball.yPos();
+    float ball_top_y = ball_obj.yPos();
     float ball_bottom_y = ball_top_y + ball_size;
 
-    float ball_left_x = ball.xPos();
+    float ball_left_x = ball_obj.xPos();
     float ball_right_x = ball_left_x + ball_size;
 
     if (ball_left_x <= -ball_size)
@@ -456,7 +335,6 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
 // Updates the game
 // Moves the ball and updates the positions of the sprite with the positions
 // of the classes
-// TODO: Simplify by having the sprites in the classes?
 // Runs the collision detection and acts based on what the ball has hit
 void MyGame::update(const ASGE::GameTime &us)
 {
@@ -465,21 +343,16 @@ void MyGame::update(const ASGE::GameTime &us)
         // Move Ball
         float newX = ball.xPos() + (ball.ballSpeed() * ball.xDir() * (us.delta_time.count()/ 1000.f));
         ball.xPos(newX);
-        ball_sprite->xPos(newX);
 
         float newY = ball.yPos() + (ball.ballSpeed() * ball.yDir() * (us.delta_time.count()/ 1000.f));
         ball.yPos(newY);
-        ball_sprite->yPos(newY);
 
-        // Move Player One
-        paddle_one->xPos(player_one.xPos());
-        paddle_one->yPos(player_one.yPos());
+        // Update position
+        ball.updatePosition();
+        player_one.updatePosition();
+        player_two.updatePosition();
 
-        // Move Player Two
-        paddle_two->xPos(player_two.xPos());
-        paddle_two->yPos(player_two.yPos());
-
-        int hit = collisionDetection();
+        int hit = collisionDetection(ball);
         if (hit == HIT_TB)
         {
             ball.multiplyVector(1.0, -1.0);
@@ -521,7 +394,7 @@ void MyGame::update(const ASGE::GameTime &us)
 // Renders the main menu screen
 void MyGame::renderMainMenu()
 {
-    renderer->renderSprite(*main_title);
+    renderer->renderSprite(*menu_screen);
 
     renderer->renderText(menu_option == 0 ? ">> Play" : "   Play",
                          425, 350, 1.5, ASGE::COLOURS::WHITE);
@@ -530,36 +403,13 @@ void MyGame::renderMainMenu()
                          425, 450, 1.5, ASGE::COLOURS::WHITE);
 }
 
-void MyGame::renderControls()
-{
-    renderer->renderSprite(*controls_title);
-    renderer->renderSprite(*paddle_one);
-    renderer->renderSprite(*paddle_two);
-
-    renderer->renderSprite(*arrow_one);
-    renderer->renderSprite(*arrow_two);
-    renderer->renderSprite(*arrow_three);
-    renderer->renderSprite(*arrow_four);
-
-    renderer->renderText("Player One", 256, 200, 1.0, ASGE::COLOURS::WHITE);
-    renderer->renderText("Player Two", 658, 200, 1.0, ASGE::COLOURS::WHITE);
-
-    renderer->renderSprite(*player_one_controls);
-    renderer->renderSprite(*player_two_controls);
-
-    renderer->renderText("Press ENTER to start the game",
-                         262, 600, 1.5, ASGE::COLOURS::WHITE);
-    renderer->renderText("Press ESC to quit the game",
-                         280, 675, 1.5, ASGE::COLOURS::WHITE);
-}
-
 void MyGame::renderGameScreen()
 {
-    renderer->renderSprite(*foreground);
+    renderer->renderSprite(*game_screen);
 
-    renderer->renderSprite(*ball_sprite);
-    renderer->renderSprite(*paddle_one);
-    renderer->renderSprite(*paddle_two);
+    renderer->renderSprite(*ball.getSprite());
+    renderer->renderSprite(*player_one.getSprite());
+    renderer->renderSprite(*player_two.getSprite());
 
     std::string score_one = "Score: ";
     score_one += std::to_string(player_one.playerScore());
@@ -572,7 +422,7 @@ void MyGame::renderGameScreen()
 
 void MyGame::renderGameOver()
 {
-    renderer->renderSprite(*game_over_title);
+    renderer->renderSprite(*game_over_screen);
 
     std::string score_one = "Player One Score: ";
     score_one += std::to_string(player_one.playerScore());
@@ -590,7 +440,7 @@ void MyGame::renderGameOver()
 
 void MyGame::renderQuitScreen()
 {
-    renderer->renderSprite(*quit_title);
+    renderer->renderSprite(*quit_screen);
 
     renderer->renderText(menu_option == 0 ? ">> Resume" : "   Resume",
                          400, 350, 1.5, ASGE::COLOURS::WHITE);
@@ -605,15 +455,13 @@ void MyGame::renderQuitScreen()
 // option they have selected so far
 void MyGame::render(const ASGE::GameTime &us)
 {
-    renderer->renderSprite(*background);
-
     if (screen_open == MENU_SCREEN)
     {
         renderMainMenu();
     }
     if (screen_open == CONTROLS_SCREEN)
     {
-        renderControls();
+        renderer->renderSprite(*controls_screen);
     }
     if (screen_open == GAME_SCREEN)
     {

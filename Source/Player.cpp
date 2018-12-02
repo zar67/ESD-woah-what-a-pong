@@ -85,3 +85,30 @@ void Player::reset()
     resetScore();
 }
 
+void Player::initSprite(ASGE::Sprite* rawSprite)
+{
+    sprite = rawSprite;
+    sprite->loadTexture("data/images/paddle.png");
+    sprite->width(width);
+    sprite->height(height);
+    sprite->xPos(x);
+    sprite->yPos(y);
+}
+
+ASGE::Sprite* Player::getSprite()
+{
+    return sprite;
+}
+
+void Player::deleteSprite()
+{
+    delete sprite;
+    sprite = nullptr;
+}
+
+void Player::updatePosition()
+{
+    sprite->xPos(x);
+    sprite->yPos(y);
+}
+

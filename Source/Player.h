@@ -5,6 +5,8 @@
 #ifndef HELLOASGE_PLAYER_H
 #define HELLOASGE_PLAYER_H
 
+#include <Engine/Sprite.h>
+
 
 class Player
 {
@@ -31,6 +33,12 @@ public:
     float paddleWidth();
     float paddleHeight();
 
+    void initSprite(ASGE::Sprite* rawSprite);
+    ASGE::Sprite* getSprite();
+    void deleteSprite();
+
+    void updatePosition();
+
 private:
     float start_width = 20.0;
     float start_height = 120.0;
@@ -44,6 +52,7 @@ private:
     float width;
     float height;
     float speed;
+    ASGE::Sprite* sprite = nullptr;
 };
 
 

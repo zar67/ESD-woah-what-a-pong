@@ -82,3 +82,30 @@ float Ball::ballSpeed()
 {
     return speed;
 }
+
+void Ball::initSprite(ASGE::Sprite* rawSprite)
+{
+    sprite = rawSprite;
+    sprite->loadTexture("data/images/ball.png");
+    sprite->width(size);
+    sprite->height(size);
+    sprite->xPos(x);
+    sprite->yPos(y);
+}
+
+ASGE::Sprite* Ball::getSprite()
+{
+    return sprite;
+}
+
+void Ball::deleteSprite()
+{
+    delete sprite;
+    sprite = nullptr;
+}
+
+void Ball::updatePosition()
+{
+    sprite->xPos(x);
+    sprite->yPos(y);
+}

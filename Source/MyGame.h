@@ -17,7 +17,7 @@ public:
 
 private:
     void keyHandler(const ASGE::SharedEventData data);
-    int collisionDetection();
+    int collisionDetection(Ball ball_obj);
     void resetGame();
 
     int  key_callback_id = -1;	        /**< Key Input Callback ID. */
@@ -29,7 +29,6 @@ private:
     Player player_two = Player(954,324);
 
     void renderMainMenu();
-    void renderControls();
     void renderGameScreen();
     void renderGameOver();
     void renderQuitScreen();
@@ -38,21 +37,12 @@ private:
     //ASGE::Font* game_font = nullptr;
 
     // Sprite Objects
-    ASGE::Sprite* background = nullptr;
-    ASGE::Sprite* foreground = nullptr;
-    ASGE::Sprite* main_title = nullptr;
-    ASGE::Sprite* controls_title = nullptr;
-    ASGE::Sprite* game_over_title = nullptr;
-    ASGE::Sprite* quit_title = nullptr;
-    ASGE::Sprite* ball_sprite = nullptr;
-    ASGE::Sprite* paddle_one = nullptr;
-    ASGE::Sprite* paddle_two = nullptr;
-    ASGE::Sprite* arrow_one = nullptr;
-    ASGE::Sprite* arrow_two = nullptr;
-    ASGE::Sprite* arrow_three = nullptr;
-    ASGE::Sprite* arrow_four = nullptr;
-    ASGE::Sprite* player_one_controls = nullptr;
-    ASGE::Sprite* player_two_controls = nullptr;
+    ASGE::Sprite* game_screen = nullptr;
+    ASGE::Sprite* menu_screen = nullptr;
+    ASGE::Sprite* controls_screen = nullptr;
+    ASGE::Sprite* game_over_screen = nullptr;
+    ASGE::Sprite* quit_screen = nullptr;
+
 
     int screen_open = 0;
     int menu_option = 0;
