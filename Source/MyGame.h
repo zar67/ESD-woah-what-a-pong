@@ -24,7 +24,7 @@ private:
     int  mouse_callback_id = -1;        /**< Mouse Input Callback ID. */
 
     Ball ball;
-    //Ball aiBall;
+    Ball aiBall;
 
     Player player_one = Player(50,324);
     Player player_two = Player(954,324);
@@ -50,7 +50,7 @@ private:
     int menu_option = 0;
 
     bool twoPlayer = false;
-    //bool trackBall = false;
+    bool trackBall = false;
 };
 
 

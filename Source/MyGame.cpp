@@ -374,7 +374,14 @@ void MyGame::update(const ASGE::GameTime &us)
         float newY = ball.yPos() + (ball.ballSpeed() * ball.yDir() * (us.delta_time.count()/ 1000.f));
         ball.yPos(newY);
 
-        /*if (trackBall)
+        if (aiBall.xPos() <= player_one.xPos())
+        {
+            std::cout << aiBall.xPos() << std::endl;
+            trackBall = false;
+            aiBall.reset();
+        }
+
+        if (trackBall)
         {
             aiBall.ballSpeed(ball.ballSpeed());
             // Move AI Ball
@@ -389,7 +396,7 @@ void MyGame::update(const ASGE::GameTime &us)
                 trackBall = false;
                 aiBall.reset();
             }
-        }*/
+        }
 
         // Update position
         ball.updatePosition();
@@ -402,12 +409,12 @@ void MyGame::update(const ASGE::GameTime &us)
             float middlePos = player_two.yPos() + (player_two.paddleHeight() / 2);
             std::cout << middlePos << std::endl;
             // y -= 20 * speed
-            if (ball.yPos() <= middlePos && player_two.yPos() > BOUNDARY)
+            if (aiBall.yPos() <= middlePos && player_two.yPos() > BOUNDARY)
             {
                 float new_y = player_two.yPos() - (player_two.paddleSpeed() * us.delta_time.count()/1000.f);
                 player_two.yPos(new_y);
             }
-            else if (ball.yPos() > middlePos && player_two.yPos() + player_two.paddleHeight() < game_height - BOUNDARY)
+            else if (aiBall.yPos() > middlePos && player_two.yPos() + player_two.paddleHeight() < game_height - BOUNDARY)
             {
                 float new_y = player_two.yPos() + (player_two.paddleSpeed() * us.delta_time.count()/1000.f);
                 player_two.yPos(new_y);
@@ -440,19 +447,19 @@ void MyGame::update(const ASGE::GameTime &us)
         else if (hit == HIT_LEFT_PADDLE)
         {
             ball.multiplyVector(-1.0, 1.0);
-        }
-        else if (hit == HIT_RIGHT_PADDLE)
-        {
-            // set invisible ball to the same variables as the ball but with a faster speed
-            ball.multiplyVector(-1.0, 1.0);
 
-            /*aiBall.ballSpeed(ball.ballSpeed() * 10);
+            // set invisible ball to the same variables as the ball but with a faster speed
+            aiBall.ballSpeed(ball.ballSpeed() * 2);
             aiBall.xDir(ball.xDir());
             aiBall.yDir(ball.yDir());
             aiBall.ballSize(ball.ballSize());
             aiBall.xPos(ball.xPos());
             aiBall.yPos(ball.yPos());
-            trackBall = true;*/
+            trackBall = true;
+        }
+        else if (hit == HIT_RIGHT_PADDLE)
+        {
+            ball.multiplyVector(-1.0, 1.0);
         }
 
         if (player_one.playerScore() == 10 || player_two.playerScore() == 10)
