@@ -22,6 +22,8 @@ public:
     void resetSize();
     void resetSpeed();
 
+    void ballSpeed(float newSpeed);
+
     void xPos(float new_x);
     void yPos(float new_y);
 

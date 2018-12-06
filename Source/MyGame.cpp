@@ -340,6 +340,7 @@ void MyGame::update(const ASGE::GameTime &us)
 {
     if (screen_open == GAME_SCREEN)
     {
+        ball.ballSpeed(ball.ballSpeed()+0.005);
         // Move Ball
         float newX = ball.xPos() + (ball.ballSpeed() * ball.xDir() * (us.delta_time.count()/ 1000.f));
         ball.xPos(newX);
