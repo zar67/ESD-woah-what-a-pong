@@ -110,7 +110,22 @@ void Ball::updatePosition()
     sprite->yPos(y);
 }
 
-void Ball::ballSpeed(float newSpeed)
+void Ball::ballSpeed(float new_speed)
 {
-    speed = newSpeed;
+    speed = new_speed;
+}
+
+void Ball::xDir(float new_x)
+{
+    direction.xPos(new_x);
+}
+
+void Ball::yDir(float new_y)
+{
+    direction.yPos(new_y);
+}
+
+void Ball::ballSize(float new_size)
+{
+    size = new_size;
 }

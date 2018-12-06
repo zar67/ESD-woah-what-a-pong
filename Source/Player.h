@@ -18,6 +18,8 @@ public:
     void moveUp();
     void moveDown();
 
+    void yPos(float new_y);
+
     void reset();
     void resetSize();
     void resetSpeed();
@@ -27,6 +29,8 @@ public:
     // Getters
     float xPos();
     float yPos();
+
+    float paddleSpeed();
 
     int playerScore();
 
@@ -42,7 +46,7 @@ public:
 private:
     float start_width = 20.0;
     float start_height = 120.0;
-    float start_speed = 2.0;
+    float start_speed = 300;
     int score = 0;
 
     float start_x;

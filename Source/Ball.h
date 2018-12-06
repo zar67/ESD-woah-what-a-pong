@@ -22,10 +22,14 @@ public:
     void resetSize();
     void resetSpeed();
 
-    void ballSpeed(float newSpeed);
+    void ballSpeed(float new_speed);
+    void ballSize(float new_size);
 
     void xPos(float new_x);
     void yPos(float new_y);
+
+    void xDir(float new_x);
+    void yDir(float new_y);
 
     // Getters
     float xPos();

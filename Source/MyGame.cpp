@@ -26,7 +26,7 @@
 #define HIT_RIGHT_PADDLE 5
 
 // BUGS
-// TODO: Make paddle movement smoother
+// TODO: Make paddle movement smoother by using delta time
 // TODO: Load font into game
 
 // MyGame constructor
@@ -54,6 +54,11 @@ MyGame::~MyGame()
     {
         delete menu_screen;
         menu_screen = nullptr;
+    }
+    if (game_options_menu)
+    {
+        delete game_options_menu;
+        game_options_menu = nullptr;
     }
     if (controls_screen)
     {
@@ -369,10 +374,45 @@ void MyGame::update(const ASGE::GameTime &us)
         float newY = ball.yPos() + (ball.ballSpeed() * ball.yDir() * (us.delta_time.count()/ 1000.f));
         ball.yPos(newY);
 
+        /*if (trackBall)
+        {
+            aiBall.ballSpeed(ball.ballSpeed());
+            // Move AI Ball
+            newX = aiBall.xPos() + (aiBall.ballSpeed() * aiBall.xDir() * (us.delta_time.count()/ 1000.f));
+            aiBall.xPos(newX);
+
+            newY = aiBall.yPos() + (aiBall.ballSpeed() * aiBall.yDir() * (us.delta_time.count()/ 1000.f));
+            aiBall.yPos(newY);
+
+            if (aiBall.xPos() <= player_one.xPos())
+            {
+                trackBall = false;
+                aiBall.reset();
+            }
+        }*/
+
         // Update position
         ball.updatePosition();
+        //aiBall.updatePosition();
         player_one.updatePosition();
         player_two.updatePosition();
+
+        if (!twoPlayer)
+        {
+            float middlePos = player_two.yPos() + (player_two.paddleHeight() / 2);
+            std::cout << middlePos << std::endl;
+            // y -= 20 * speed
+            if (ball.yPos() <= middlePos && player_two.yPos() > BOUNDARY)
+            {
+                float new_y = player_two.yPos() - (player_two.paddleSpeed() * us.delta_time.count()/1000.f);
+                player_two.yPos(new_y);
+            }
+            else if (ball.yPos() > middlePos && player_two.yPos() + player_two.paddleHeight() < game_height - BOUNDARY)
+            {
+                float new_y = player_two.yPos() + (player_two.paddleSpeed() * us.delta_time.count()/1000.f);
+                player_two.yPos(new_y);
+            }
+        }
 
         int hit = collisionDetection(ball);
         if (hit == HIT_TB)
@@ -403,7 +443,16 @@ void MyGame::update(const ASGE::GameTime &us)
         }
         else if (hit == HIT_RIGHT_PADDLE)
         {
+            // set invisible ball to the same variables as the ball but with a faster speed
             ball.multiplyVector(-1.0, 1.0);
+
+            /*aiBall.ballSpeed(ball.ballSpeed() * 10);
+            aiBall.xDir(ball.xDir());
+            aiBall.yDir(ball.yDir());
+            aiBall.ballSize(ball.ballSize());
+            aiBall.xPos(ball.xPos());
+            aiBall.yPos(ball.yPos());
+            trackBall = true;*/
         }
 
         if (player_one.playerScore() == 10 || player_two.playerScore() == 10)

@@ -40,3 +40,13 @@ void Vector::normalise()
     x /= length;
     y /= length;
 }
+
+void Vector::xPos(float new_x)
+{
+    x = new_x;
+}
+
+void Vector::yPos(float new_y)
+{
+    y = new_y;
+}

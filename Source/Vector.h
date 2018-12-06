@@ -17,6 +17,9 @@ public:
     float xPos();
     float yPos();
 
+    void xPos(float new_x);
+    void yPos(float new_y);
+
 private:
     float x;
     float y;
