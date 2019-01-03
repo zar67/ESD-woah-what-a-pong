@@ -1,6 +1,7 @@
 
 #include <string>
 #include <iostream>
+#include <math.h>
 #include <Engine/DebugPrinter.h>
 #include <Engine/Input.h>
 #include <Engine/InputEvents.h>
@@ -25,9 +26,11 @@
 #define HIT_LEFT_PADDLE 4
 #define HIT_RIGHT_PADDLE 5
 
-// BUGS
 // TODO: Make paddle movement smoother by using delta time
 // TODO: Load font into game
+// TODO: Add when ball hits top of paddle to collision detection
+// TODO: Add more pong-like ball movement
+// TODO: Refine AI
 
 // MyGame constructor
 // Sets the game dimensions and name
@@ -159,57 +162,89 @@ void MyGame::resetGame()
     player_two.reset();
 }
 
-// Detects if the ball has hit anything
-// Returns an integer representing what the ball has hit
-int MyGame::collisionDetection(Ball ball_obj)
+Vector MyGame::intersect(Vector p1, Vector p2, Vector q1, Vector q2)
 {
-    float ball_size = ball_obj.ballSize();
+    float p_m = (p2.yPos() - p1.yPos()) / (p2.xPos() - p1.xPos());
+    float p_c = p1.yPos() - (p_m * p1.xPos());
 
-    float ball_top_y = ball_obj.yPos();
-    float ball_bottom_y = ball_top_y + ball_size;
+    float q_m = (q2.yPos() - q1.yPos()) / (q2.xPos() - q1.xPos());
+    float q_c = q1.yPos() - (q_m * q1.xPos());
 
-    float ball_left_x = ball_obj.xPos();
-    float ball_right_x = ball_left_x + ball_size;
+    if (p_m != q_m)
+    {
+        float intersect_x = (q_c - p_c) / (p_m - q_m);
+        float intersect_y = p_m * intersect_x + p_c;
 
-    if (ball_left_x <= -ball_size)
-    {
-        return HIT_LEFT_WALL;
-    }
-    else if (ball_right_x >= game_width + ball_size)
-    {
-        return HIT_RIGHT_WALL;
-    }
-    else if (ball_top_y <= BOUNDARY ||
-             ball_bottom_y >= (game_height - BOUNDARY))
-    {
-        return HIT_TB;
-    }
-    // If left coordinates of the ball are within the x and y of the paddle
-    //      IF x <= player_x + player_width
-    //      IF top_y >= player_y and top_y <= player_y + player_height
-    //      OR bottom_y >= player_y and bottom_y <= player_y + player_height
-    else if (ball_left_x <= (player_one.xPos() + player_one.paddleWidth()) && 
-            ball_left_x >= player_one.xPos() + (player_one.paddleWidth() - 1) &&
-            ((ball_top_y >= player_one.yPos() &&
-              ball_top_y <= (player_one.yPos() + player_one.paddleHeight())) ||
-             (ball_bottom_y >= player_one.yPos() &&
-             ball_bottom_y <= (player_one.yPos() + player_one.paddleHeight()))))
-    {
-        return HIT_LEFT_PADDLE;
-    }
-    else if (ball_right_x >= player_two.xPos() &&
-            ball_right_x <= player_two.xPos() + 1 &&
-            ((ball_top_y >= player_two.yPos() &&
-            ball_top_y <= (player_two.yPos() + player_two.paddleHeight())) ||
-            (ball_bottom_y >= player_two.yPos() &&
-            ball_bottom_y <= (player_two.yPos() + player_two.paddleHeight()))))
-    {
-        return HIT_RIGHT_PADDLE;
+        return Vector(intersect_x, intersect_y);
     }
     else
     {
-        return NOT_HIT;
+        return Vector(0,0);
     }
+}
+
+// Detects if the ball has hit anything through ray tracing
+// Returns an integer values based on what had been hit
+int MyGame::rayCollisionDetection()
+{
+    // IF hit top
+    Vector intersect_vector = intersect(
+            Vector(ball.xPos(), ball.yPos()),
+            Vector(ball.xPos() + (ball.xDir() * 100), ball.yPos() + (ball.yDir() * 100)),
+            Vector(0,BOUNDARY),
+            Vector(game_width,BOUNDARY));
+    if (intersect_vector.xPos() != 0 && intersect_vector.yPos() != 0 &&
+        intersect_vector.xPos() >= 0 &&
+        intersect_vector.xPos() <= game_width &&
+        ball.yPos() <= intersect_vector.yPos())
+    {
+        return HIT_TB;
+    }
+
+    // IF hit bottom
+    intersect_vector = intersect(
+            Vector(ball.xPos(), ball.yPos()),
+            Vector(ball.xPos() + (ball.xDir() * 100), ball.yPos() + (ball.yDir() * 100)),
+            Vector(0,game_height-BOUNDARY),
+            Vector(game_width,game_height-BOUNDARY));
+    if (intersect_vector.xPos() != 0 && intersect_vector.yPos() != 0 &&
+        intersect_vector.xPos() >= 0 &&
+        intersect_vector.xPos() <= game_width &&
+            (ball.yPos() + ball.ballSize()) >= intersect_vector.yPos())
+    {
+        return HIT_TB;
+    }
+
+    // If ball intersects with left paddle
+    intersect_vector = intersect(
+            Vector(ball.xPos(), ball.yPos()),
+            Vector(ball.xPos() + (ball.xDir() * 100), ball.yPos() + (ball.yDir() * 100)),
+            Vector(player_one.xPos() + player_one.paddleWidth()+1, 0),
+            Vector(player_one.xPos() + player_one.paddleWidth(), game_height));
+    std::cout << intersect_vector.xPos() << "  " << intersect_vector.yPos() << std::endl;
+    if (intersect_vector.xPos() != 0 && intersect_vector.yPos() != 0 &&
+        intersect_vector.yPos() >= player_one.yPos() &&
+        intersect_vector.yPos() <= (player_one.yPos() + player_one.paddleHeight()) &&
+        ball.xPos() <= intersect_vector.xPos())
+    {
+        return HIT_LEFT_PADDLE;
+    }
+    // If hit right paddle
+    intersect_vector = intersect(
+            Vector(ball.xPos() + ball.ballSize(), ball.yPos()),
+            Vector(ball.xPos() + ball.ballSize()+ (ball.xDir() * 100), ball.yPos() + (ball.yDir() * 100)),
+            Vector(player_two.xPos()+1, 0),
+            Vector(player_two.xPos(), game_height));
+    std::cout << intersect_vector.xPos() << "  " << intersect_vector.yPos() << std::endl;
+    if (intersect_vector.xPos() != 0 && intersect_vector.yPos() != 0 &&
+        intersect_vector.yPos() >= player_two.yPos() &&
+        intersect_vector.yPos() <= (player_two.yPos() + player_two.paddleHeight()) &&
+        (ball.xPos() + ball.ballSize()) >= intersect_vector.xPos())
+    {
+        return HIT_RIGHT_PADDLE;
+    }
+
+    return NOT_HIT;
 }
 
 // Handles all the key inputs for the game
@@ -421,20 +456,31 @@ void MyGame::update(const ASGE::GameTime &us)
             }
         }
 
-        int hit = collisionDetection(ball);
+        if (ball.xPos() <= -ball.ballSize())
+        {
+            player_two.updateScore(1);
+            ball.reset();
+        }
+        else if (ball.xPos() >= game_width)
+        {
+            player_one.updateScore(1);
+            ball.reset();
+        }
+
+        int hit = rayCollisionDetection();
         if (hit == HIT_TB)
         {
             ball.multiplyVector(1.0, -1.0);
-            if (ball.yPos() <= BOUNDARY)
+            if (ball.yPos() <= BOUNDARY+1)
             {
-                ball.yPos(BOUNDARY+1);
+                ball.yPos(BOUNDARY+2);
             }
             else
             {
-                ball.yPos(game_height-BOUNDARY-ball.ballSize()-1);
+                ball.yPos(game_height-BOUNDARY-ball.ballSize()-2);
             }
         }
-        else if (hit == HIT_LEFT_WALL)
+        /*else if (hit == HIT_LEFT_WALL)
         {
             player_two.updateScore(1);
             ball.reset();
@@ -443,7 +489,7 @@ void MyGame::update(const ASGE::GameTime &us)
         {
             player_one.updateScore(1);
             ball.reset();
-        }
+        }*/
         else if (hit == HIT_LEFT_PADDLE)
         {
             ball.multiplyVector(-1.0, 1.0);
