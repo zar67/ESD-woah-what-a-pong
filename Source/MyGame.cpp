@@ -10,10 +10,11 @@
 #include "MyGame.h"
 
 #define MENU_SCREEN 0
-#define CONTROLS_SCREEN 1
-#define GAME_SCREEN 2
-#define GAME_OVER_SCREEN 3
-#define QUIT_SCREEN 4
+#define GAME_OPTION_SCREEN 1
+#define CONTROLS_SCREEN 2
+#define GAME_SCREEN 3
+#define GAME_OVER_SCREEN 4
+#define QUIT_SCREEN 5
 
 #define BOUNDARY 85.0
 
@@ -25,7 +26,7 @@
 #define HIT_RIGHT_PADDLE 5
 
 // BUGS
-// TODO: Make paddle movement smoother
+// TODO: Make paddle movement smoother by using delta time
 // TODO: Load font into game
 
 // MyGame constructor
@@ -53,6 +54,11 @@ MyGame::~MyGame()
     {
         delete menu_screen;
         menu_screen = nullptr;
+    }
+    if (game_options_menu)
+    {
+        delete game_options_menu;
+        game_options_menu = nullptr;
     }
     if (controls_screen)
     {
@@ -102,6 +108,12 @@ bool MyGame::init()
     game_screen->loadTexture("data/images/game_screen.png");
     game_screen->width(game_width);
     game_screen->height(game_height);
+
+    // Load the Game Options Menu Screen sprite
+    game_options_menu = renderer->createRawSprite();
+    game_options_menu->loadTexture("data/images/game_options_menu.png");
+    game_options_menu->width(game_width);
+    game_options_menu->height(game_height);
 
     // Load the Main Menu Screen sprite
     menu_screen = renderer->createRawSprite();
@@ -207,7 +219,7 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
 {
     auto key = static_cast<const ASGE::KeyEvent*>(data.get());
 
-    if (screen_open == MENU_SCREEN || screen_open == GAME_OVER_SCREEN)
+    if (screen_open == MENU_SCREEN || screen_open == GAME_OPTION_SCREEN || screen_open == GAME_OVER_SCREEN)
     {
         if (key->key == ASGE::KEYS::KEY_UP &&
             key->action == ASGE::KEYS::KEY_RELEASED)
@@ -226,14 +238,27 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
         {
             if (menu_option == 1)
             {
-                // Exit
-                signalExit();
+                if (screen_open == GAME_OPTION_SCREEN)
+                {
+                    screen_open = CONTROLS_SCREEN;
+                    twoPlayer = false;
+                }
+                else
+                {
+                    // Exit
+                    signalExit();
+                }
             }
             else // menu_option == 0
             {
                 if (screen_open == MENU_SCREEN)
                 {
+                    screen_open = GAME_OPTION_SCREEN;
+                }
+                else if (screen_open == GAME_OPTION_SCREEN)
+                {
                     screen_open = CONTROLS_SCREEN;
+                    twoPlayer = true;
                 }
                 else // screen_open == GAME_OVER_SCREEN
                 {
@@ -308,23 +333,24 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
         {
             player_one.moveUp();
         }
-        if (key->key == ASGE::KEYS::KEY_S &&
-            player_one.yPos() + player_one.paddleHeight() <
-            game_height - BOUNDARY)
+        else if (key->key == ASGE::KEYS::KEY_S &&
+            player_one.yPos() + player_one.paddleHeight() < game_height - BOUNDARY)
         {
             player_one.moveDown();
         }
-        if (key->key == ASGE::KEYS::KEY_UP && player_two.yPos() > BOUNDARY)
+        else if (twoPlayer)
         {
-            player_two.moveUp();
+            if (key->key == ASGE::KEYS::KEY_UP && player_two.yPos() > BOUNDARY)
+            {
+                player_two.moveUp();
+            }
+            else if (key->key == ASGE::KEYS::KEY_DOWN &&
+                player_two.yPos() + player_two.paddleHeight() < game_height - BOUNDARY)
+            {
+                player_two.moveDown();
+            }
         }
-        if (key->key == ASGE::KEYS::KEY_DOWN &&
-            player_two.yPos() + player_two.paddleHeight() <
-            game_height - BOUNDARY)
-        {
-            player_two.moveDown();
-        }
-        if (key->key == ASGE::KEYS::KEY_ESCAPE)
+        else if (key->key == ASGE::KEYS::KEY_ESCAPE)
         {
             screen_open = QUIT_SCREEN;
             menu_option = 0;
@@ -348,10 +374,52 @@ void MyGame::update(const ASGE::GameTime &us)
         float newY = ball.yPos() + (ball.ballSpeed() * ball.yDir() * (us.delta_time.count()/ 1000.f));
         ball.yPos(newY);
 
+        if (aiBall.xPos() <= player_one.xPos())
+        {
+            std::cout << aiBall.xPos() << std::endl;
+            trackBall = false;
+            aiBall.reset();
+        }
+
+        if (trackBall)
+        {
+            aiBall.ballSpeed(ball.ballSpeed());
+            // Move AI Ball
+            newX = aiBall.xPos() + (aiBall.ballSpeed() * aiBall.xDir() * (us.delta_time.count()/ 1000.f));
+            aiBall.xPos(newX);
+
+            newY = aiBall.yPos() + (aiBall.ballSpeed() * aiBall.yDir() * (us.delta_time.count()/ 1000.f));
+            aiBall.yPos(newY);
+
+            if (aiBall.xPos() <= player_one.xPos())
+            {
+                trackBall = false;
+                aiBall.reset();
+            }
+        }
+
         // Update position
         ball.updatePosition();
+        //aiBall.updatePosition();
         player_one.updatePosition();
         player_two.updatePosition();
+
+        if (!twoPlayer)
+        {
+            float middlePos = player_two.yPos() + (player_two.paddleHeight() / 2);
+            std::cout << middlePos << std::endl;
+            // y -= 20 * speed
+            if (aiBall.yPos() <= middlePos && player_two.yPos() > BOUNDARY)
+            {
+                float new_y = player_two.yPos() - (player_two.paddleSpeed() * us.delta_time.count()/1000.f);
+                player_two.yPos(new_y);
+            }
+            else if (aiBall.yPos() > middlePos && player_two.yPos() + player_two.paddleHeight() < game_height - BOUNDARY)
+            {
+                float new_y = player_two.yPos() + (player_two.paddleSpeed() * us.delta_time.count()/1000.f);
+                player_two.yPos(new_y);
+            }
+        }
 
         int hit = collisionDetection(ball);
         if (hit == HIT_TB)
@@ -379,6 +447,15 @@ void MyGame::update(const ASGE::GameTime &us)
         else if (hit == HIT_LEFT_PADDLE)
         {
             ball.multiplyVector(-1.0, 1.0);
+
+            // set invisible ball to the same variables as the ball but with a faster speed
+            aiBall.ballSpeed(ball.ballSpeed() * 2);
+            aiBall.xDir(ball.xDir());
+            aiBall.yDir(ball.yDir());
+            aiBall.ballSize(ball.ballSize());
+            aiBall.xPos(ball.xPos());
+            aiBall.yPos(ball.yPos());
+            trackBall = true;
         }
         else if (hit == HIT_RIGHT_PADDLE)
         {
@@ -402,6 +479,17 @@ void MyGame::renderMainMenu()
 
     renderer->renderText(menu_option == 1 ? ">> Quit" : "   Quit",
                          425, 450, 1.5, ASGE::COLOURS::WHITE);
+}
+
+void MyGame::renderGameOptionsMenu()
+{
+    renderer->renderSprite(*game_options_menu);
+
+    renderer->renderText(menu_option == 0 ? ">> Player vs Player" : "   Player vs Player",
+                         340, 350, 1.5, ASGE::COLOURS::WHITE);
+
+    renderer->renderText(menu_option == 1 ? ">> Player vs Computer" : "   Player vs Computer",
+                         340, 450, 1.5, ASGE::COLOURS::WHITE);
 }
 
 void MyGame::renderGameScreen()
@@ -460,19 +548,23 @@ void MyGame::render(const ASGE::GameTime &us)
     {
         renderMainMenu();
     }
-    if (screen_open == CONTROLS_SCREEN)
+    else if (screen_open == GAME_OPTION_SCREEN)
+    {
+        renderGameOptionsMenu();
+    }
+    else if (screen_open == CONTROLS_SCREEN)
     {
         renderer->renderSprite(*controls_screen);
     }
-    if (screen_open == GAME_SCREEN)
+    else if (screen_open == GAME_SCREEN)
     {
         renderGameScreen();
     }
-    if (screen_open == GAME_OVER_SCREEN)
+    else if (screen_open == GAME_OVER_SCREEN)
     {
         renderGameOver();
     }
-    if (screen_open == QUIT_SCREEN)
+    else if (screen_open == QUIT_SCREEN)
     {
         renderQuitScreen();
     }

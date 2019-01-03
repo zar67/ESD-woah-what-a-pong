@@ -59,12 +59,12 @@ float Player::paddleHeight()
 
 void Player::moveUp()
 {
-    y -= 20.0 * speed;
+    y -= speed / 10;
 }
 
 void Player::moveDown()
 {
-    y += 20.0 * speed;
+    y += speed / 10;
 }
 
 int Player::playerScore()
@@ -112,3 +112,12 @@ void Player::updatePosition()
     sprite->yPos(y);
 }
 
+float Player::paddleSpeed()
+{
+    return speed;
+}
+
+void Player::yPos(float new_y)
+{
+    y = new_y;
+}

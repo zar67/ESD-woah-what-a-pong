@@ -24,11 +24,13 @@ private:
     int  mouse_callback_id = -1;        /**< Mouse Input Callback ID. */
 
     Ball ball;
+    Ball aiBall;
 
     Player player_one = Player(50,324);
     Player player_two = Player(954,324);
 
     void renderMainMenu();
+    void renderGameOptionsMenu();
     void renderGameScreen();
     void renderGameOver();
     void renderQuitScreen();
@@ -37,15 +39,18 @@ private:
     //ASGE::Font* game_font = nullptr;
 
     // Sprite Objects
-    ASGE::Sprite* game_screen = nullptr;
     ASGE::Sprite* menu_screen = nullptr;
+    ASGE::Sprite* game_options_menu = nullptr;
     ASGE::Sprite* controls_screen = nullptr;
+    ASGE::Sprite* game_screen = nullptr;
     ASGE::Sprite* game_over_screen = nullptr;
     ASGE::Sprite* quit_screen = nullptr;
 
-
     int screen_open = 0;
     int menu_option = 0;
+
+    bool twoPlayer = false;
+    bool trackBall = false;
 };
 
 
