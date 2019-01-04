@@ -17,8 +17,10 @@ public:
 
 private:
     void keyHandler(const ASGE::SharedEventData data);
-    int collisionDetection(Ball ball_obj);
     void resetGame();
+
+    int rayCollisionDetection();
+    Vector intersect(Vector p1, Vector p2, Vector q1, Vector q2);
 
     int  key_callback_id = -1;	        /**< Key Input Callback ID. */
     int  mouse_callback_id = -1;        /**< Mouse Input Callback ID. */
@@ -51,6 +53,7 @@ private:
 
     bool twoPlayer = false;
     bool trackBall = false;
+
 };
 
 

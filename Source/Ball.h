@@ -35,6 +35,7 @@ public:
     float xPos();
     float yPos();
     float ballSize();
+    Vector ballDir();
     float xDir();
     float yDir();
     float ballSpeed();
