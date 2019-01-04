@@ -28,7 +28,6 @@
 
 // TODO: Make paddle movement smoother by using delta time
 // TODO: Load font into game
-// TODO: Add more pong-like ball movement
 // TODO: Refine AI
 
 // MyGame constructor
@@ -226,6 +225,7 @@ int MyGame::rayCollisionDetection()
         intersect_vector.yPos() >= player_one.yPos() &&
         intersect_vector.yPos() <= (player_one.yPos() + player_one.paddleHeight()) &&
         ball.xPos() <= intersect_vector.xPos() &&
+        ball.xPos() >= player_one.xPos() &&
         ball.xDir()<= 0)
     {
         return HIT_LEFT_PADDLE;
@@ -240,6 +240,7 @@ int MyGame::rayCollisionDetection()
         intersect_vector.yPos() >= player_two.yPos() &&
         intersect_vector.yPos() <= (player_two.yPos() + player_two.paddleHeight()) &&
         (ball.xPos() + ball.ballSize()) >= intersect_vector.xPos() &&
+        (ball.xPos() + ball.ballSize()) <= (intersect_vector.xPos() + player_two.paddleWidth()) &&
         ball.xDir() >= 0)
     {
         return HIT_RIGHT_PADDLE;
@@ -254,49 +255,8 @@ int MyGame::rayCollisionDetection()
     if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
         intersect_vector.xPos() >= player_one.xPos() &&
         intersect_vector.xPos() <= player_one.xPos() + player_one.paddleWidth() &&
-        ball.yPos() >= player_one.yPos())
-    {
-        return HIT_TB;
-    }
-
-    // If ball intersects with top of right paddle
-    intersect_vector = intersect(
-            Vector(ball.xPos(), ball.yPos() + ball.ballSize()),
-            Vector(ball.xPos() + (ball.xDir() * 100), ball.yPos() + ball.ballSize() + (ball.yDir() * 100)),
-            Vector(player_two.xPos(), player_two.yPos()),
-            Vector(player_two.xPos() + 100, player_two.yPos()));
-    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
-        intersect_vector.xPos() >= player_two.xPos() &&
-        intersect_vector.xPos() <= player_two.xPos() + player_two.paddleWidth() &&
-        ball.yPos() >= player_two.yPos())
-    {
-        return HIT_TB;
-    }
-
-    // If ball intersects with bottom of left paddle
-    intersect_vector = intersect(
-            Vector(ball.xPos(), ball.yPos() + ball.ballSize()),
-            Vector(ball.xPos() + (ball.xDir() * 100), ball.yPos() + ball.ballSize() + (ball.yDir() * 100)),
-            Vector(player_one.xPos(), player_one.yPos() + player_one.paddleHeight()),
-            Vector(player_one.xPos() + 100, player_one.yPos() + player_one.paddleHeight()));
-    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
-        intersect_vector.xPos() >= player_one.xPos() &&
-        intersect_vector.xPos() <= player_one.xPos() + player_one.paddleWidth() &&
-        ball.yPos() <= player_one.yPos())
-    {
-        return HIT_TB;
-    }
-
-    // If ball intersects with bottom of right paddle
-    intersect_vector = intersect(
-            Vector(ball.xPos(), ball.yPos() + ball.ballSize()),
-            Vector(ball.xPos() + (ball.xDir() * 100), ball.yPos() + ball.ballSize() + (ball.yDir() * 100)),
-            Vector(player_two.xPos(), player_two.yPos() + player_two.paddleHeight()),
-            Vector(player_two.xPos() + 100, player_two.yPos() + player_two.paddleHeight()));
-    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
-        intersect_vector.xPos() >= player_two.xPos() &&
-        intersect_vector.xPos() <= player_two.xPos() + player_two.paddleWidth() &&
-        ball.yPos() <= player_two.yPos())
+        ball.yPos() >= player_one.yPos() &&
+        ball.yDir() >= 0)
     {
         return HIT_TB;
     }
@@ -537,7 +497,28 @@ void MyGame::update(const ASGE::GameTime &us)
         }
         else if (hit == HIT_LEFT_PADDLE)
         {
-            ball.multiplyVector(-1.0, 1.0);
+            float prevY = ball.yDir();
+            // Ball direction created based on where it hit the paddle
+            float relativeIntersect = (player_one.yPos() + (player_one.paddleHeight() / 2)) - (ball.yPos() + (ball.ballSize() / 2));
+            float normalisedIntersect = (relativeIntersect/(player_one.paddleHeight()/2));
+            double bounceAngle = normalisedIntersect * 1.309;
+            Vector newDir = Vector(ball.ballSpeed()*cos(bounceAngle), ball.ballSpeed()*sin(bounceAngle));
+            newDir.normalise();
+            ball.xDir(newDir.xPos());
+            ball.yDir(newDir.yPos());
+            if (ball.xDir() < 0)
+            {
+                ball.multiplyVector(-1.0, 1.0);
+            }
+            if ((prevY < 0 && ball.yDir() > 0) || (prevY > 0 && ball.yDir() < 0))
+            {
+                ball.multiplyVector(1.0, -1.0);
+            }
+            if ((player_one.yPos() < player_one.lastPos() && ball.yDir() > 0)||
+                (player_one.yPos() > player_one.lastPos() && ball.yDir() < 0))
+            {
+                ball.multiplyVector(1.0, -1.0);
+            }
 
             // set invisible ball to the same variables as the ball but with a faster speed
             aiBall.ballSpeed(ball.ballSpeed() * 2);
@@ -550,8 +531,34 @@ void MyGame::update(const ASGE::GameTime &us)
         }
         else if (hit == HIT_RIGHT_PADDLE)
         {
-            ball.multiplyVector(-1.0, 1.0);
+            float prevY = ball.yDir();
+            // Ball direction created based on where it hit the paddle
+            float relativeIntersect = (player_two.yPos() + (player_two.paddleHeight() / 2)) - (ball.yPos() + (ball.ballSize() / 2));
+            float normalisedIntersect = (relativeIntersect/(player_two.paddleHeight()/2));
+            double bounceAngle = normalisedIntersect * 1.309;
+
+            Vector newDir = Vector(ball.ballSpeed()*cos(bounceAngle), ball.ballSpeed()*sin(bounceAngle));
+            newDir.normalise();
+            ball.xDir(newDir.xPos());
+            ball.yDir(newDir.yPos());
+            ball.multiplyVector(1.0, -1.0);
+            if (ball.xDir() > 0)
+            {
+                ball.multiplyVector(-1.0, 1.0);
+            }
+            if ((prevY < 0 && ball.yDir() > 0) || (prevY > 0 && ball.yDir() < 0))
+            {
+                ball.multiplyVector(1.0, -1.0);
+            }
+            if ((player_two.yPos() < player_two.lastPos() && ball.yDir() > 0)||
+                (player_two.yPos() > player_two.lastPos() && ball.yDir() < 0))
+            {
+                ball.multiplyVector(1.0, -1.0);
+            }
         }
+
+        player_one.lastPos(player_one.yPos());
+        player_two.lastPos(player_two.yPos());
 
         if (player_one.playerScore() == 10 || player_two.playerScore() == 10)
         {

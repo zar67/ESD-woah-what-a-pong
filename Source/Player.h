@@ -18,6 +18,8 @@ public:
     void moveUp();
     void moveDown();
 
+    void lastPos(float d);
+
     void yPos(float new_y);
 
     void reset();
@@ -36,6 +38,8 @@ public:
 
     float paddleWidth();
     float paddleHeight();
+
+    float lastPos();
 
     void initSprite(ASGE::Sprite* rawSprite);
     ASGE::Sprite* getSprite();
@@ -57,6 +61,8 @@ private:
     float height;
     float speed;
     ASGE::Sprite* sprite = nullptr;
+
+    float lastY = start_y;
 };
 
 
