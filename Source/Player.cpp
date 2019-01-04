@@ -121,3 +121,13 @@ void Player::yPos(float new_y)
 {
     y = new_y;
 }
+
+void Player::lastPos(float d)
+{
+    lastY = d;
+}
+
+float Player::lastPos()
+{
+    return lastY;
+}

@@ -2,6 +2,7 @@
 #ifndef HELLOASGE_MYGAME_H
 #define HELLOASGE_MYGAME_H
 
+#include <math.h>
 #include <Engine/OGLGame.h>
 #include "Ball.h"
 #include "Player.h"
