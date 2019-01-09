@@ -312,7 +312,7 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
             {
                 if (screen_open == GAME_OPTION_SCREEN)
                 {
-                    screen_open = CONTROLS_SCREEN;
+                    screen_open = GAME_SCREEN;
                     twoPlayer = false;
                 }
                 else
@@ -325,11 +325,11 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
             {
                 if (screen_open == MENU_SCREEN)
                 {
-                    screen_open = GAME_OPTION_SCREEN;
+                    screen_open = CONTROLS_SCREEN;
                 }
                 else if (screen_open == GAME_OPTION_SCREEN)
                 {
-                    screen_open = CONTROLS_SCREEN;
+                    screen_open = GAME_SCREEN;
                     twoPlayer = true;
                 }
                 else // screen_open == GAME_OVER_SCREEN
@@ -347,7 +347,7 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
         if (key->key == ASGE::KEYS::KEY_ENTER &&
             key->action == ASGE::KEYS::KEY_RELEASED)
         {
-            screen_open = GAME_SCREEN;
+            screen_open = GAME_OPTION_SCREEN;
         }
         if (key->key == ASGE::KEYS::KEY_ESCAPE)
         {
