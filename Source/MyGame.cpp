@@ -175,15 +175,14 @@ Vector MyGame::intersect(Vector p1, Vector p2, Vector q1, Vector q2)
 }
 
 // Calculates the new direction of the ball based on where it hits the paddle
-Vector MyGame::setNewDir(Player paddle, Ball ballObj)
+Vector MyGame::setNewDir(Player paddle, float y, float y_dir, float size, float speed)
 {
-    float prevY = ballObj.yDir();
-    float relativeIntersect = (paddle.yPos() + (paddle.paddleHeight() / 2)) - (ballObj.yPos() + (ballObj.ballSize() / 2));
+    float prevY = y_dir;
+    float relativeIntersect = (paddle.yPos() + (paddle.paddleHeight() / 2)) - (y + (size / 2));
     float normalisedIntersect = (relativeIntersect/(paddle.paddleHeight()/2));
     double bounceAngle = normalisedIntersect * 1.0472; // 1.309 radians = 60 degrees
-    Vector newDir = Vector(ballObj.ballSpeed()*cos(bounceAngle), ballObj.ballSpeed()*sin(bounceAngle));
-    ballObj.multiplyVector(-1, 1);
-    if ((prevY < 0 && ballObj.yDir() > 0) || (prevY > 0 && ballObj.yDir() < 0))
+    Vector newDir = Vector(speed*cos(bounceAngle), speed*sin(bounceAngle));
+    if ((prevY < 0 && y_dir > 0) || (prevY > 0 && y_dir < 0))
     {
         newDir.multiplyBy(1, -1);
     }
@@ -200,22 +199,22 @@ Vector MyGame::setNewDir(Player paddle, Ball ballObj)
 
 // Detects if the ball has hit anything through ray tracing
 // Returns an integer values based on what had been hit
-Vector MyGame::rayCollisionDetection(Ball ballObj)
+Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir, float size, float speed)
 {
-    Vector newDir = Vector(ballObj.xDir(), ballObj.yDir());
+    Vector newDir = Vector(x_dir, y_dir);
     // Find the intersection point between the ball's direction and the
     // Top boundary
     Vector intersect_vector = intersect(
-            Vector(ballObj.xPos(), ballObj.yPos()), // Point one line one
-            Vector(ballObj.xPos() + (ballObj.xDir() * 100), ballObj.yPos() + (ballObj.yDir() * 100)),
+            Vector(x, y), // Point one line one
+            Vector(x + (x_dir * 100), y + (y_dir * 100)),
             Vector(0,BOUNDARY), // Point one line two
             Vector(game_width,BOUNDARY)); // Point two line two
     // If there is an intersection and the ball hits the top on within the screen
     // and the ball's position is on the top boundary
     if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
-        intersect_vector.xPos() >= -ballObj.ballSize() &&
-        intersect_vector.xPos() <= game_width + ballObj.ballSize() &&
-        ballObj.yPos() <= intersect_vector.yPos())
+        intersect_vector.xPos() >= -size &&
+        intersect_vector.xPos() <= game_width + size &&
+        y <= intersect_vector.yPos())
     {
         // The ball has hit the top
         newDir.multiplyBy(1, -1);
@@ -224,14 +223,14 @@ Vector MyGame::rayCollisionDetection(Ball ballObj)
 
     // If ball hits bottom
     intersect_vector = intersect(
-            Vector(ballObj.xPos(), ballObj.yPos()),
-            Vector(ballObj.xPos() + (ballObj.xDir() * 100), ballObj.yPos() + (ballObj.yDir() * 100)),
+            Vector(x, y),
+            Vector(x + (x_dir * 100), y + (y * 100)),
             Vector(0,game_height-BOUNDARY),
             Vector(game_width,game_height-BOUNDARY));
     if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
-        intersect_vector.xPos() >= -ballObj.ballSize() &&
-        intersect_vector.xPos() <= game_width + ballObj.ballSize() &&
-            (ballObj.yPos() + ballObj.ballSize()) >= intersect_vector.yPos())
+        intersect_vector.xPos() >= -size &&
+        intersect_vector.xPos() <= game_width + size &&
+        (y + size) >= intersect_vector.yPos())
     {
         newDir.multiplyBy(1, -1);
         return newDir;
@@ -239,16 +238,16 @@ Vector MyGame::rayCollisionDetection(Ball ballObj)
 
     // If ball intersects with left paddle
     intersect_vector = intersect(
-            Vector(ballObj.xPos(), ballObj.yPos()),
-            Vector(ballObj.xPos() + (ballObj.xDir() * 100), ballObj.yPos() + (ballObj.yDir() * 100)),
+            Vector(x, y),
+            Vector(x + (x_dir * 100), y + (y_dir * 100)),
             Vector(player_one.xPos() + player_one.paddleWidth()+1, 0),
             Vector(player_one.xPos() + player_one.paddleWidth(), game_height));
     if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
         intersect_vector.yPos() >= player_one.yPos() &&
         intersect_vector.yPos() <= (player_one.yPos() + player_one.paddleHeight()) &&
-        ballObj.xPos() <= intersect_vector.xPos() &&
-        ballObj.xPos() >= player_one.xPos() &&
-        ballObj.xDir()<= 0)
+        x <= intersect_vector.xPos() &&
+        x >= player_one.xPos() &&
+        x_dir<= 0)
     {
         if (!twoPlayer)
         {
@@ -261,23 +260,23 @@ Vector MyGame::rayCollisionDetection(Ball ballObj)
             aiBall.yPos(ball.yPos());
         }
 
-        newDir = setNewDir(player_one, ballObj);
+        newDir = setNewDir(player_one, y, y_dir, size, speed);
         return newDir;
     }
     // If ball intersects with right paddle
     intersect_vector = intersect(
-            Vector(ballObj.xPos() + ballObj.ballSize(), ballObj.yPos()),
-            Vector(ballObj.xPos() + ballObj.ballSize()+ (ballObj.xDir() * 100), ballObj.yPos() + (ballObj.yDir() * 100)),
+            Vector(x + size, y),
+            Vector(x + size+ (x_dir * 100), y + (y_dir * 100)),
             Vector(player_two.xPos()+1, 0),
             Vector(player_two.xPos(), game_height));
     if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
         intersect_vector.yPos() >= player_two.yPos() &&
         intersect_vector.yPos() <= (player_two.yPos() + player_two.paddleHeight()) &&
-        (ballObj.xPos() + ballObj.ballSize()) >= intersect_vector.xPos() &&
-        (ballObj.xPos() + ballObj.ballSize()) <= (intersect_vector.xPos() + player_two.paddleWidth()) &&
-            ballObj.xDir() >= 0)
+        (x + size) >= intersect_vector.xPos() &&
+        (x + size) <= (intersect_vector.xPos() + player_two.paddleWidth()) &&
+        x_dir >= 0)
     {
-        newDir = setNewDir(player_two, ballObj);
+        newDir = setNewDir(player_two, y, y_dir, size, speed);
         newDir.multiplyBy(-1, 1);
         return newDir;
     }
@@ -464,7 +463,10 @@ void MyGame::update(const ASGE::GameTime &us)
                 newY = aiBall.yPos() + (aiBall.ballSpeed() * aiBall.yDir() * (us.delta_time.count()/ 1000.f));
                 aiBall.yPos(newY);
 
-                Vector newDir = rayCollisionDetection(aiBall);
+                Vector newDir = rayCollisionDetection(
+                        aiBall.xPos(), aiBall.yPos(),
+                        aiBall.xDir(), aiBall.yDir(),
+                        aiBall.ballSize(), aiBall.ballSpeed());
                 aiBall.yDir(newDir.yPos());
 
                 if (aiBall.xPos() >= player_two.xPos() || ball.xPos() < 0)
@@ -498,9 +500,18 @@ void MyGame::update(const ASGE::GameTime &us)
             ball.reset();
         }
 
-        Vector newDir = rayCollisionDetection(ball);
+        Vector newDir = rayCollisionDetection(
+                ball.xPos(), ball.yPos(),
+                ball.xDir(), ball.yDir(),
+                ball.ballSize(), ball.ballSpeed());
         ball.xDir(newDir.xPos());
         ball.yDir(newDir.yPos());
+
+        newDir = rayCollisionDetection(
+                ball.xPos(), ball.yPos()+ball.ballSize(),
+                ball.xDir(), ball.yDir(),
+                ball.ballSize(), ball.ballSpeed());
+        ball.xDir(newDir.xPos());
 
         player_one.lastPos(player_one.yPos());
         player_two.lastPos(player_two.yPos());

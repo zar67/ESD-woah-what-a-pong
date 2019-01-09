@@ -17,8 +17,8 @@ public:
     void render(const ASGE::GameTime& us) override;
 
     void resetGame();
-    Vector setNewDir(Player paddle, Ball ballObj);
-    Vector rayCollisionDetection(Ball ballObj);
+    Vector setNewDir(Player paddle, float y, float y_dir, float size, float speed);
+    Vector rayCollisionDetection(float x, float y, float x_dir, float y_dir, float size, float speed);
     Vector intersect(Vector p1, Vector p2, Vector q1, Vector q2);
 
 private:
