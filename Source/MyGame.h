@@ -16,12 +16,13 @@ public:
     void update(const ASGE::GameTime& us) override;
     void render(const ASGE::GameTime& us) override;
 
+    void resetGame();
+    Vector setNewDir(Player paddle, float y, float y_dir, float size, float speed);
+    Vector rayCollisionDetection(float x, float y, float x_dir, float y_dir, float size, float speed);
+    Vector intersect(Vector p1, Vector p2, Vector q1, Vector q2);
+
 private:
     void keyHandler(const ASGE::SharedEventData data);
-    void resetGame();
-
-    int rayCollisionDetection();
-    Vector intersect(Vector p1, Vector p2, Vector q1, Vector q2);
 
     int  key_callback_id = -1;	        /**< Key Input Callback ID. */
     int  mouse_callback_id = -1;        /**< Mouse Input Callback ID. */
@@ -48,6 +49,7 @@ private:
     ASGE::Sprite* game_screen = nullptr;
     ASGE::Sprite* game_over_screen = nullptr;
     ASGE::Sprite* quit_screen = nullptr;
+
 
     int screen_open = 0;
     int menu_option = 0;

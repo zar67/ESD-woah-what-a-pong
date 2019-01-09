@@ -129,8 +129,3 @@ void Ball::ballSize(float new_size)
 {
     size = new_size;
 }
-
-Vector Ball::ballDir()
-{
-    return direction;
-}
