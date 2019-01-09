@@ -36,7 +36,7 @@ float Vector::yPos()
 
 void Vector::normalise()
 {
-    float length = pow((pow(x,2)+pow(y,2)),0.5);
+    double length = pow((pow(x,2)+pow(y,2)),0.5);
     x /= length;
     y /= length;
 }
