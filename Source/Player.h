@@ -7,63 +7,58 @@
 
 #include <Engine/Sprite.h>
 
-
 class Player
 {
 public:
     Player(float x_start, float y_start);
 
     // Setters
-    void updateScore(int to_add);
+    void yPos(float new_y);
     void moveUp();
     void moveDown();
 
-    void lastPos(float d);
+    // Adds the to_add value on to the score.
+    void updateScore(int to_add);
 
-    void yPos(float new_y);
+    // Initialises the sprite, loading in the texture and setting the size.
+    void initSprite(ASGE::Sprite* rawSprite);
+    // Deals with the deleting of the dynamic sprite, called in the game's destructor.
+    void deleteSprite();
+    void updatePosition();
 
     void reset();
-    void resetSize();
-    void resetSpeed();
-    void resetPosition();
-    void resetScore();
 
     // Getters
-    float xPos();
-    float yPos();
-
     float paddleSpeed();
-
-    int playerScore();
 
     float paddleWidth();
     float paddleHeight();
 
-    float lastPos();
+    float xPos();
+    float yPos();
 
-    void initSprite(ASGE::Sprite* rawSprite);
+    int playerScore();
+
+    // Returns the sprite for rendering purposes.
     ASGE::Sprite* getSprite();
-    void deleteSprite();
-
-    void updatePosition();
 
 private:
-    float start_width = 20.0;
-    float start_height = 120.0;
     float start_speed = 300;
-    int score = 0;
+    float speed;
+
+    float start_width = 20.0;
+    float width;
+    float start_height = 120.0;
+    float height;
 
     float start_x;
-    float start_y;
     float x;
+    float start_y;
     float y;
-    float width;
-    float height;
-    float speed;
+
+    int score = 0;
+
     ASGE::Sprite* sprite = nullptr;
-
-    float lastY = start_y;
 };
-
 
 #endif //HELLOASGE_PLAYER_H

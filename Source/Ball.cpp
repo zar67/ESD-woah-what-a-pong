@@ -10,52 +10,14 @@ Ball::Ball()
     reset();
 }
 
-void Ball::resetPosition()
+void Ball::ballSpeed(float new_speed)
 {
-    x = start_x;
-    y = start_y;
+    speed = new_speed;
 }
 
-void Ball::resetSize()
+void Ball::ballSize(float new_size)
 {
-    size = start_size;
-}
-
-void Ball::resetSpeed()
-{
-    speed = start_speed;
-}
-
-void Ball::reset()
-{
-    resetPosition();
-    resetSpeed();
-    resetSize();
-
-    float new_x_dir = rand() % 3 - 3;
-    float new_y_dir = rand() % 3 - 3;
-    direction.setValues(new_x_dir, new_y_dir);
-    direction.normalise();
-}
-
-float Ball::xPos()
-{
-    return x;
-}
-
-float Ball::yPos()
-{
-    return y;
-}
-
-float Ball::ballSize()
-{
-    return size;
-}
-
-void Ball::multiplyVector(float x_scalar, float y_scalar)
-{
-    direction = direction.multiplyBy(x_scalar, y_scalar);
+    size = new_size;
 }
 
 void Ball::xPos(float new_x)
@@ -68,19 +30,19 @@ void Ball::yPos(float new_y)
     y = new_y;
 }
 
-float Ball::xDir()
+void Ball::xDir(float new_x)
 {
-    return direction.xPos();
+    direction.xPos(new_x);
 }
 
-float Ball::yDir()
+void Ball::yDir(float new_y)
 {
-    return direction.yPos();
+    direction.yPos(new_y);
 }
 
-float Ball::ballSpeed()
+void Ball::multiplyVector(float x_scalar, float y_scalar)
 {
-    return speed;
+    direction = direction.multiplyBy(x_scalar, y_scalar);
 }
 
 void Ball::initSprite(ASGE::Sprite* rawSprite)
@@ -91,11 +53,6 @@ void Ball::initSprite(ASGE::Sprite* rawSprite)
     sprite->height(size);
     sprite->xPos(x);
     sprite->yPos(y);
-}
-
-ASGE::Sprite* Ball::getSprite()
-{
-    return sprite;
 }
 
 void Ball::deleteSprite()
@@ -110,22 +67,50 @@ void Ball::updatePosition()
     sprite->yPos(y);
 }
 
-void Ball::ballSpeed(float new_speed)
+void Ball::reset()
 {
-    speed = new_speed;
+    speed = start_speed;
+    size = start_size;
+    size = start_size;
+
+    // Generates a random direction for the ball to go in.
+    float new_x_dir = rand() % 3 - 3;
+    float new_y_dir = rand() % 3 - 6;
+    direction.setValues(new_x_dir, new_y_dir);
+    direction.normalise();
 }
 
-void Ball::xDir(float new_x)
+float Ball::ballSpeed()
 {
-    direction.xPos(new_x);
+    return speed;
 }
 
-void Ball::yDir(float new_y)
+float Ball::ballSize()
 {
-    direction.yPos(new_y);
+    return size;
 }
 
-void Ball::ballSize(float new_size)
+float Ball::xPos()
 {
-    size = new_size;
+    return x;
+}
+
+float Ball::yPos()
+{
+    return y;
+}
+
+float Ball::xDir()
+{
+    return direction.xPos();
+}
+
+float Ball::yDir()
+{
+    return direction.yPos();
+}
+
+ASGE::Sprite* Ball::getSprite()
+{
+    return sprite;
 }

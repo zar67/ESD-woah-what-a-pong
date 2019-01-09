@@ -9,52 +9,12 @@ Player::Player(float x_start, float y_start)
     start_x = x_start;
     start_y = y_start;
 
-    resetPosition();
-    resetSize();
-    resetSpeed();
-    resetScore();
+    reset();
 }
 
-void Player::updateScore(int to_add)
+void Player::yPos(float new_y)
 {
-    score += to_add;
-}
-
-void Player::resetSize()
-{
-    width = start_width;
-    height = start_height;
-}
-
-void Player::resetSpeed()
-{
-    speed = start_speed;
-}
-
-void Player::resetPosition()
-{
-    x = start_x;
-    y = start_y;
-}
-
-float Player::xPos()
-{
-    return x;
-}
-
-float Player::yPos()
-{
-    return y;
-}
-
-float Player::paddleWidth()
-{
-    return width;
-}
-
-float Player::paddleHeight()
-{
-    return height;
+    y = new_y;
 }
 
 void Player::moveUp()
@@ -67,22 +27,9 @@ void Player::moveDown()
     y += speed / 10;
 }
 
-int Player::playerScore()
+void Player::updateScore(int to_add)
 {
-    return score;
-}
-
-void Player::resetScore()
-{
-    score = 0;
-}
-
-void Player::reset()
-{
-    resetSize();
-    resetSpeed();
-    resetPosition();
-    resetScore();
+    score += to_add;
 }
 
 void Player::initSprite(ASGE::Sprite* rawSprite)
@@ -93,11 +40,6 @@ void Player::initSprite(ASGE::Sprite* rawSprite)
     sprite->height(height);
     sprite->xPos(x);
     sprite->yPos(y);
-}
-
-ASGE::Sprite* Player::getSprite()
-{
-    return sprite;
 }
 
 void Player::deleteSprite()
@@ -112,22 +54,47 @@ void Player::updatePosition()
     sprite->yPos(y);
 }
 
+void Player::reset()
+{
+    speed = start_speed;
+    width = start_width;
+    height = start_height;
+    x = start_x;
+    y = start_y;
+    score = 0;
+}
+
 float Player::paddleSpeed()
 {
     return speed;
 }
 
-void Player::yPos(float new_y)
+float Player::paddleWidth()
 {
-    y = new_y;
+    return width;
 }
 
-void Player::lastPos(float d)
+float Player::paddleHeight()
 {
-    lastY = d;
+    return height;
 }
 
-float Player::lastPos()
+float Player::xPos()
 {
-    return lastY;
+    return x;
+}
+
+float Player::yPos()
+{
+    return y;
+}
+
+int Player::playerScore()
+{
+    return score;
+}
+
+ASGE::Sprite* Player::getSprite()
+{
+    return sprite;
 }

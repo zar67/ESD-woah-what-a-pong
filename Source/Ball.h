@@ -8,20 +8,12 @@
 #include <Engine/Sprite.h>
 #include "Vector.h"
 
-
 class Ball
 {
 public:
     Ball();
 
     // Setters
-    void multiplyVector(float x_scalar, float y_scalar);
-
-    void reset();
-    void resetPosition();
-    void resetSize();
-    void resetSpeed();
-
     void ballSpeed(float new_speed);
     void ballSize(float new_size);
 
@@ -31,33 +23,46 @@ public:
     void xDir(float new_x);
     void yDir(float new_y);
 
-    // Getters
-    float xPos();
-    float yPos();
-    float ballSize();
-    float xDir();
-    float yDir();
-    float ballSpeed();
+    // Multiplies the direction vector by the scalars passed into the function.
+    void multiplyVector(float x_scalar, float y_scalar);
 
+    // Initialises the sprite, loading in the texture and setting the size.
     void initSprite(ASGE::Sprite* rawSprite);
-    ASGE::Sprite* getSprite();
+    // Deals with the deleting of the dynamic sprite, called in the game's destructor.
     void deleteSprite();
-
     void updatePosition();
 
-private:
-    float start_x = 503.0;
-    float start_y = 370.0;
-    float start_size = 26.0;
-    float start_speed = 350.0;
+    void reset();
 
-    float x;
-    float y;
+    // Getters
+    float ballSpeed();
+    float ballSize();
+
+    float xPos();
+    float yPos();
+
+    float xDir();
+    float yDir();
+
+    // Returns the sprite for rendering purposes.
+    ASGE::Sprite* getSprite();
+
+private:
+    float start_speed = 350.0;
     float speed;
+
+    float start_size = 26.0;
     float size;
-    Vector direction = Vector(0.0,0.0);
+
+    float start_x = 503.0;
+    float x;
+
+    float start_y = 370.0;
+    float y;
+
+    Vector direction = Vector(0.0f,0.0f);
+
     ASGE::Sprite* sprite = nullptr;
 };
-
 
 #endif //HELLOASGE_BALL_H

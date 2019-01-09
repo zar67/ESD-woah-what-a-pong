@@ -11,27 +11,16 @@ Vector::Vector(float x_dir, float y_dir)
     y = y_dir;
 }
 
-Vector Vector::multiplyBy(float x_scale, float y_scale)
-{
-    x *= x_scale;
-    y *= y_scale;
-    return Vector(x,y);
-}
-
 void Vector::setValues(float new_x, float new_y)
 {
     x = new_x;
     y = new_y;
 }
 
-float Vector::xPos()
+void Vector::multiplyBy(float x_scale, float y_scale)
 {
-    return x;
-}
-
-float Vector::yPos()
-{
-    return y;
+    x *= x_scale;
+    y *= y_scale;
 }
 
 void Vector::normalise()
@@ -49,4 +38,14 @@ void Vector::xPos(float new_x)
 void Vector::yPos(float new_y)
 {
     y = new_y;
+}
+
+float Vector::xPos()
+{
+    return x;
+}
+
+float Vector::yPos()
+{
+    return y;
 }
