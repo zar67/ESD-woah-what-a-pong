@@ -31,7 +31,7 @@ void Player::initSprite(ASGE::Sprite* rawSprite)
 {
     sprite = rawSprite;
     sprite->loadTexture("data/images/paddle.png");
-    sprite->width(20);
+    sprite->width(10);
     sprite->height(120);
     sprite->xPos(x);
     sprite->yPos(y);
