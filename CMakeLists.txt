@@ -30,7 +30,7 @@ add_executable(
         ${PROJECT_NAME}
         main.cpp
         Source/MyGame.cpp
-        Source/MyGame.h)
+        Source/MyGame.h Source/Ball.cpp Source/Ball.h Source/Vector.cpp Source/Vector.h Source/Player.cpp Source/Player.h)
 
 ## library includes
 target_include_directories(
