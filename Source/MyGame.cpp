@@ -17,7 +17,7 @@
 
 #define BOUNDARY 85.0f
 
-#define PADDLE_WIDTH 20
+#define PADDLE_WIDTH 10
 #define PADDLE_HEIGHT 120
 
 MyGame::MyGame()
@@ -385,17 +385,20 @@ void MyGame::update(const ASGE::GameTime &us)
             player_one.move(0);
             player_one.yPos(BOUNDARY+1);
         }
-        if (player_two.yPos() + PADDLE_HEIGHT > game_height - BOUNDARY)
-        {
-            player_two.move(0);
-            player_two.yPos(game_height-BOUNDARY-1-PADDLE_HEIGHT);
-        }
-        else if (player_two.yPos() < BOUNDARY)
-        {
-            player_two.move(0);
-            player_two.yPos(BOUNDARY+1);
-        }
 
+        if (two_player)
+        {
+            if (player_two.yPos() + PADDLE_HEIGHT > game_height - BOUNDARY)
+            {
+                player_two.move(0);
+                player_two.yPos(game_height-BOUNDARY-1-PADDLE_HEIGHT);
+            }
+            else if (player_two.yPos() < BOUNDARY)
+            {
+                player_two.move(0);
+                player_two.yPos(BOUNDARY+1);
+            }
+        }
         player_one.updatePosition(us.delta_time.count()/ 1000.f);
         player_two.updatePosition(us.delta_time.count()/ 1000.f);
 
