@@ -303,7 +303,7 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
             {
                 player_one.move(0);
             }
-            else if (player_one.yPos() > BOUNDARY)
+            else
             {
                 player_one.move(-1);
             }
@@ -314,20 +314,20 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
             {
                 player_one.move(0);
             }
-            else if (player_one.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
+            else
             {
                 player_one.move(1);
             }
         }
-        else if (two_player)
+        if (two_player)
         {
             if (key->key == ASGE::KEYS::KEY_UP)
             {
                 if (key->action == ASGE::KEYS::KEY_RELEASED)
                 {
-                    player_one.move(0);
+                    player_two.move(0);
                 }
-                else if (player_two.yPos() > BOUNDARY)
+                else
                 {
                     player_two.move(-1);
                 }
@@ -338,7 +338,7 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
                 {
                     player_two.move(0);
                 }
-                else if (player_two.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
+                else
                 {
                     player_two.move(1);
                 }
@@ -374,6 +374,28 @@ void MyGame::update(const ASGE::GameTime &us)
 
         // Update positions
         ball.updatePosition();
+
+        if (player_one.yPos() + PADDLE_HEIGHT > game_height - BOUNDARY)
+        {
+            player_one.move(0);
+            player_one.yPos(game_height-BOUNDARY-1-PADDLE_HEIGHT);
+        }
+        else if (player_one.yPos() < BOUNDARY)
+        {
+            player_one.move(0);
+            player_one.yPos(BOUNDARY+1);
+        }
+        if (player_two.yPos() + PADDLE_HEIGHT > game_height - BOUNDARY)
+        {
+            player_two.move(0);
+            player_two.yPos(game_height-BOUNDARY-1-PADDLE_HEIGHT);
+        }
+        else if (player_two.yPos() < BOUNDARY)
+        {
+            player_two.move(0);
+            player_two.yPos(BOUNDARY+1);
+        }
+
         player_one.updatePosition(us.delta_time.count()/ 1000.f);
         player_two.updatePosition(us.delta_time.count()/ 1000.f);
 

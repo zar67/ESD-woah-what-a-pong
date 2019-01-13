@@ -42,7 +42,7 @@ private:
     float start_y;
     float y;
     int score = 0;
-    float move_speed = 300;
+    float move_speed = 350;
 
     // A value set to either -1, 0 or 1 to determine where the player moves.
     int moving = 0;
