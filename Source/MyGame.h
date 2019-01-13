@@ -39,7 +39,6 @@ public:
                                  float size, float speed);
 
     void renderMainMenu();
-    void renderGameOptionsMenu();
     void renderGameScreen();
     void renderGameOver();
     void renderQuitScreen();

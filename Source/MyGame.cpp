@@ -11,10 +11,9 @@
 #include "MyGame.h"
 
 #define MENU_SCREEN 0
-#define GAME_OPTION_SCREEN 1
-#define GAME_SCREEN 2
-#define GAME_OVER_SCREEN 3
-#define QUIT_SCREEN 4
+#define GAME_SCREEN 1
+#define GAME_OVER_SCREEN 2
+#define QUIT_SCREEN 3
 
 #define BOUNDARY 85.0f
 
@@ -260,13 +259,7 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
 {
     auto key = static_cast<const ASGE::KeyEvent*>(data.get());
 
-    if (screen_open == MENU_SCREEN &&
-        key->key == ASGE::KEYS::KEY_ENTER &&
-        key->action == ASGE::KEYS::KEY_RELEASED)
-    {
-            screen_open = GAME_OPTION_SCREEN;
-    }
-    else if (screen_open == GAME_OPTION_SCREEN)
+    if (screen_open == MENU_SCREEN)
     {
         if (key->key == ASGE::KEYS::KEY_UP &&
             key->action == ASGE::KEYS::KEY_RELEASED)
@@ -274,12 +267,12 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
             menu_option = 1 - menu_option;
         }
         else if (key->key == ASGE::KEYS::KEY_DOWN &&
-            key->action == ASGE::KEYS::KEY_RELEASED)
+                 key->action == ASGE::KEYS::KEY_RELEASED)
         {
             menu_option = 1 - menu_option;
         }
         else if (key->key == ASGE::KEYS::KEY_ENTER &&
-            key->action == ASGE::KEYS::KEY_RELEASED)
+                 key->action == ASGE::KEYS::KEY_RELEASED)
         {
             if (menu_option == 1)
             {
@@ -443,29 +436,21 @@ void MyGame::renderMainMenu()
 {
     renderer->renderSprite(*menu_screen);
 
-    renderer->renderText("Press ENTER to play",
-                         375, 350, 1.5, ASGE::COLOURS::WHITE);
-
-    renderer->renderText("Press ESC to quit",
-                         375, 450, 1.5, ASGE::COLOURS::WHITE);
-}
-
-void MyGame::renderGameOptionsMenu()
-{
-    renderer->renderSprite(*background);
-
     renderer->renderText(
             menu_option == 0 ? ">> Player vs Player" : "   Player vs Player",
-            340, 250, 1.5, ASGE::COLOURS::WHITE);
+            340, 350, 1.5, ASGE::COLOURS::WHITE);
 
     renderer->renderText(
             menu_option == 1 ? ">> Player vs Computer" : "   Player vs Computer",
-            340, 300, 1.5, ASGE::COLOURS::WHITE);
+            340, 400, 1.5, ASGE::COLOURS::WHITE);
 
-    renderer->renderText("Player One uses W and S",
-                         315, 450, 1.5, ASGE::COLOURS::WHITE);
-    renderer->renderText("Player Two uses Up and Down",
-                         300, 500, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Player One's controls are W and S",
+                         295, 520, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Player Two's controls are Up and Down",
+                         280, 550, 1.5, ASGE::COLOURS::WHITE);
+
+    renderer->renderText("Press ESC to quit",
+                         375, 600, 1.5, ASGE::COLOURS::WHITE);
 }
 
 void MyGame::renderGameScreen()
@@ -519,10 +504,6 @@ void MyGame::render(const ASGE::GameTime &us)
     if (screen_open == MENU_SCREEN)
     {
         renderMainMenu();
-    }
-    else if (screen_open == GAME_OPTION_SCREEN)
-    {
-        renderGameOptionsMenu();
     }
     else if (screen_open == GAME_SCREEN)
     {
