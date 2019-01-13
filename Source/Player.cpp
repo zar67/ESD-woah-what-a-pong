@@ -17,27 +17,17 @@ void Player::yPos(float new_y)
     y = new_y;
 }
 
-void Player::moveUp()
+void Player::increaseScore()
 {
-    y -= speed / 10;
-}
-
-void Player::moveDown()
-{
-    y += speed / 10;
-}
-
-void Player::updateScore(int to_add)
-{
-    score += to_add;
+    score += 1;
 }
 
 void Player::initSprite(ASGE::Sprite* rawSprite)
 {
     sprite = rawSprite;
     sprite->loadTexture("data/images/paddle.png");
-    sprite->width(width);
-    sprite->height(height);
+    sprite->width(20);
+    sprite->height(120);
     sprite->xPos(x);
     sprite->yPos(y);
 }
@@ -56,27 +46,9 @@ void Player::updatePosition()
 
 void Player::reset()
 {
-    speed = start_speed;
-    width = start_width;
-    height = start_height;
     x = start_x;
     y = start_y;
     score = 0;
-}
-
-float Player::paddleSpeed()
-{
-    return speed;
-}
-
-float Player::paddleWidth()
-{
-    return width;
-}
-
-float Player::paddleHeight()
-{
-    return height;
 }
 
 float Player::xPos()

@@ -15,11 +15,6 @@ void Ball::ballSpeed(float new_speed)
     speed = new_speed;
 }
 
-void Ball::ballSize(float new_size)
-{
-    size = new_size;
-}
-
 void Ball::xPos(float new_x)
 {
     x = new_x;
@@ -38,11 +33,6 @@ void Ball::xDir(float new_x)
 void Ball::yDir(float new_y)
 {
     direction.yPos(new_y);
-}
-
-void Ball::multiplyVector(float x_scalar, float y_scalar)
-{
-    direction = direction.multiplyBy(x_scalar, y_scalar);
 }
 
 void Ball::initSprite(ASGE::Sprite* rawSprite)
@@ -69,14 +59,15 @@ void Ball::updatePosition()
 
 void Ball::reset()
 {
-    speed = start_speed;
-    size = start_size;
-    size = start_size;
+    speed = 350;
+    x = 503;
+    y = 370;
 
     // Generates a random direction for the ball to go in.
     float new_x_dir = rand() % 3 - 3;
     float new_y_dir = rand() % 3 - 6;
-    direction.setValues(new_x_dir, new_y_dir);
+    direction.xPos(new_x_dir);
+    direction.yPos(new_y_dir);
     direction.normalise();
 }
 

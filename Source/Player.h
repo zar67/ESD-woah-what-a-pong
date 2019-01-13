@@ -14,11 +14,9 @@ public:
 
     // Setters
     void yPos(float new_y);
-    void moveUp();
-    void moveDown();
 
     // Adds the to_add value on to the score.
-    void updateScore(int to_add);
+    void increaseScore();
 
     // Initialises the sprite, loading in the texture and setting the size.
     void initSprite(ASGE::Sprite* rawSprite);
@@ -29,35 +27,19 @@ public:
     void reset();
 
     // Getters
-    float paddleSpeed();
-
-    float paddleWidth();
-    float paddleHeight();
-
     float xPos();
     float yPos();
-
     int playerScore();
 
     // Returns the sprite for rendering purposes.
     ASGE::Sprite* getSprite();
 
 private:
-    float start_speed = 300;
-    float speed;
-
-    float start_width = 20.0;
-    float width;
-    float start_height = 120.0;
-    float height;
-
     float start_x;
     float x;
     float start_y;
     float y;
-
     int score = 0;
-
     ASGE::Sprite* sprite = nullptr;
 };
 

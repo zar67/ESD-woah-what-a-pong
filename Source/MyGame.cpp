@@ -12,16 +12,18 @@
 
 #define MENU_SCREEN 0
 #define GAME_OPTION_SCREEN 1
-#define CONTROLS_SCREEN 2
-#define GAME_SCREEN 3
-#define GAME_OVER_SCREEN 4
-#define QUIT_SCREEN 5
+#define GAME_SCREEN 2
+#define GAME_OVER_SCREEN 3
+#define QUIT_SCREEN 4
 
 #define BOUNDARY 85.0f
 
+#define PADDLE_WIDTH 20
+#define PADDLE_HEIGHT 120
+#define PADDLE_SPEED 300
+
 // TODO: Make paddle movement smoother by using delta time
 // TODO: Load font into game
-// TODO: Refine AI
 
 MyGame::MyGame()
 {
@@ -45,25 +47,15 @@ MyGame::~MyGame()
         delete menu_screen;
         menu_screen = nullptr;
     }
-    if (game_options_menu)
+    if (background)
     {
-        delete game_options_menu;
-        game_options_menu = nullptr;
-    }
-    if (controls_screen)
-    {
-        delete controls_screen;
-        controls_screen = nullptr;
+        delete background;
+        background = nullptr;
     }
     if (game_over_screen)
     {
         delete game_over_screen;
         game_over_screen = nullptr;
-    }
-    if (quit_screen)
-    {
-        delete quit_screen;
-        quit_screen = nullptr;
     }
     if (ball.getSprite())
     {
@@ -96,23 +88,17 @@ bool MyGame::init()
     game_screen->width(game_width);
     game_screen->height(game_height);
 
-    // Load the Game Options Menu Screen sprite
-    game_options_menu = renderer->createRawSprite();
-    game_options_menu->loadTexture("data/images/game_options_menu.png");
-    game_options_menu->width(game_width);
-    game_options_menu->height(game_height);
+    // Load the Background sprite
+    background = renderer->createRawSprite();
+    background->loadTexture("data/images/game_options_menu.png");
+    background->width(game_width);
+    background->height(game_height);
 
     // Load the Main Menu Screen sprite
     menu_screen = renderer->createRawSprite();
     menu_screen->loadTexture("data/images/menu_screen.png");
     menu_screen->width(game_width);
     menu_screen->height(game_height);
-
-    // Load the Controls Screen Sprite
-    controls_screen = renderer->createRawSprite();
-    controls_screen->loadTexture("data/images/controls_screen.png");
-    controls_screen->width(game_width);
-    controls_screen->height(game_height);
 
     // Load the Game Sprites
     player_one.initSprite(renderer->createRawSprite());
@@ -124,12 +110,6 @@ bool MyGame::init()
     game_over_screen->loadTexture("data/images/game_over_screen.png");
     game_over_screen->width(game_width);
     game_over_screen->height(game_height);
-
-    // Load the Quit Screen sprite
-    quit_screen = renderer->createRawSprite();
-    quit_screen->loadTexture("data/images/quit_screen.png");
-    quit_screen->width(game_width);
-    quit_screen->height(game_height);
 
     toggleFPS();
 
@@ -148,8 +128,8 @@ Vector MyGame::calculateNewDir(Player paddle, float y, float y_dir, float size, 
 {
     float prev_y = y_dir;
     // Calculate where the ball hit by a number from -1 to 1.
-    float paddle_intersect = (paddle.yPos() + (paddle.paddleHeight() / 2)) - (y + (size / 2));
-    float normalised_intersect = (paddle_intersect/(paddle.paddleHeight()/2));
+    float paddle_intersect = (paddle.yPos() + (PADDLE_HEIGHT / 2)) - (y + (size / 2));
+    float normalised_intersect = (paddle_intersect/(PADDLE_HEIGHT/2));
 
     // Convert the number to a radian value.
     double bounce_angle = normalised_intersect * 1.0472; // 1.309 radians = 60 degrees.
@@ -222,9 +202,9 @@ Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
     intersect_vector = intersect(
             Vector(x, y),
             Vector(x + (x_dir * 100), y + (y_dir * 100)),
-            Vector(player_one.xPos() + player_one.paddleWidth()+1, 0),
-            Vector(player_one.xPos() + player_one.paddleWidth(), game_height));
-    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) && intersect_vector.yPos() >= player_one.yPos() && intersect_vector.yPos() <= (player_one.yPos() + player_one.paddleHeight()) && x <= intersect_vector.xPos() && x >= player_one.xPos() && x_dir<= 0)
+            Vector(player_one.xPos() + PADDLE_WIDTH+1, 0),
+            Vector(player_one.xPos() + PADDLE_WIDTH, game_height));
+    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) && intersect_vector.yPos() >= player_one.yPos() && intersect_vector.yPos() <= (player_one.yPos() + PADDLE_HEIGHT) && x <= intersect_vector.xPos() && x >= player_one.xPos() && x_dir<= 0)
     {
         if (!two_player)
         {
@@ -232,7 +212,6 @@ Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
             ai_ball.ballSpeed(ball.ballSpeed() * 1.5f);
             ai_ball.xDir(ball.xDir());
             ai_ball.yDir(ball.yDir());
-            ai_ball.ballSize(ball.ballSize());
             ai_ball.xPos(ball.xPos());
             ai_ball.yPos(ball.yPos());
         }
@@ -246,7 +225,7 @@ Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
             Vector(x + size+ (x_dir * 100), y + (y_dir * 100)),
             Vector(player_two.xPos()+1, 0),
             Vector(player_two.xPos(), game_height));
-    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) && intersect_vector.yPos() >= player_two.yPos() && intersect_vector.yPos() <= (player_two.yPos() + player_two.paddleHeight()) && (x + size) >= intersect_vector.xPos() && (x + size) <= (intersect_vector.xPos() + player_two.paddleWidth()) && x_dir >= 0)
+    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) && intersect_vector.yPos() >= player_two.yPos() && intersect_vector.yPos() <= (player_two.yPos() + PADDLE_HEIGHT) && (x + size) >= intersect_vector.xPos() && (x + size) <= (intersect_vector.xPos() + PADDLE_WIDTH) && x_dir >= 0)
     {
         new_dir = calculateNewDir(player_two, y, y_dir, size, speed);
         new_dir.multiplyBy(-1, 1);
@@ -261,133 +240,84 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
 {
     auto key = static_cast<const ASGE::KeyEvent*>(data.get());
 
-    if (screen_open == MENU_SCREEN || screen_open == GAME_OPTION_SCREEN || screen_open == GAME_OVER_SCREEN)
+    if (screen_open == MENU_SCREEN &&
+        key->key == ASGE::KEYS::KEY_ENTER &&
+        key->action == ASGE::KEYS::KEY_RELEASED)
+    {
+            screen_open = GAME_OPTION_SCREEN;
+    }
+    else if (screen_open == GAME_OPTION_SCREEN)
     {
         if (key->key == ASGE::KEYS::KEY_UP &&
             key->action == ASGE::KEYS::KEY_RELEASED)
         {
             menu_option = 1 - menu_option;
         }
-        if (key->key == ASGE::KEYS::KEY_DOWN &&
+        else if (key->key == ASGE::KEYS::KEY_DOWN &&
             key->action == ASGE::KEYS::KEY_RELEASED)
         {
             menu_option = 1 - menu_option;
         }
-        if (key->key == ASGE::KEYS::KEY_ENTER &&
+        else if (key->key == ASGE::KEYS::KEY_ENTER &&
             key->action == ASGE::KEYS::KEY_RELEASED)
         {
             if (menu_option == 1)
             {
-                if (screen_open == GAME_OPTION_SCREEN)
-                {
-                    screen_open = GAME_SCREEN;
-                    two_player = false;
-                }
-                else
-                {
-                    signalExit();
-                }
+                screen_open = GAME_SCREEN;
+                two_player = false;
             }
             else // menu_option == 0
             {
-                if (screen_open == MENU_SCREEN)
-                {
-                    screen_open = CONTROLS_SCREEN;
-                }
-                else if (screen_open == GAME_OPTION_SCREEN)
-                {
-                    screen_open = GAME_SCREEN;
-                    two_player = true;
-                }
-                else // screen_open == GAME_OVER_SCREEN
-                {
-                    screen_open = MENU_SCREEN;
-                    menu_option = 0;
-                    resetGame();
-                }
-            }
-        }
-    }
-    else if (screen_open == CONTROLS_SCREEN)
-    {
-        if (key->key == ASGE::KEYS::KEY_ENTER &&
-            key->action == ASGE::KEYS::KEY_RELEASED)
-        {
-            screen_open = GAME_OPTION_SCREEN;
-        }
-        if (key->key == ASGE::KEYS::KEY_ESCAPE)
-        {
-            signalExit();
-        }
-    }
-    else if (screen_open == QUIT_SCREEN)
-    {
-        if (key->key == ASGE::KEYS::KEY_UP &&
-            key->action == ASGE::KEYS::KEY_RELEASED)
-        {
-            menu_option -= 1;
-        }
-        if (key->key == ASGE::KEYS::KEY_DOWN &&
-            key->action == ASGE::KEYS::KEY_RELEASED)
-        {
-            menu_option += 1;
-        }
-
-        // Ensure menu_option is either 0, 1 or 2
-        if (menu_option < 0)
-        {
-            menu_option = 2;
-        }
-        if (menu_option > 2)
-        {
-            menu_option = 0;
-        }
-
-        if (key->key == ASGE::KEYS::KEY_ENTER &&
-            key->action == ASGE::KEYS::KEY_RELEASED)
-        {
-            if (menu_option == 0)
-            {
                 screen_open = GAME_SCREEN;
-            }
-            else if (menu_option == 1)
-            {
-                screen_open = MENU_SCREEN;
-                menu_option = 0;
-                resetGame();
-            }
-            else if (menu_option == 2)
-            {
-                signalExit();
+                two_player = true;
             }
         }
     }
-    else //screen_open == GAME_SCREEN
+    else if (screen_open == QUIT_SCREEN &&
+             key->key == ASGE::KEYS::KEY_ENTER &&
+             key->action == ASGE::KEYS::KEY_RELEASED)
+    {
+        screen_open = GAME_SCREEN;
+    }
+    else if (screen_open == GAME_OVER_SCREEN &&
+             key->key == ASGE::KEYS::KEY_ENTER &&
+             key->action == ASGE::KEYS::KEY_RELEASED)
+    {
+        screen_open = MENU_SCREEN;
+        resetGame();
+    }
+    else if (screen_open == GAME_SCREEN)
     {
         if (key->key == ASGE::KEYS::KEY_W && player_one.yPos() > BOUNDARY)
         {
-            player_one.moveUp();
+            player_one.yPos(player_one.yPos()-(PADDLE_SPEED/10));
         }
-        else if (key->key == ASGE::KEYS::KEY_S && player_one.yPos() + player_one.paddleHeight() < game_height - BOUNDARY)
+        else if (key->key == ASGE::KEYS::KEY_S && player_one.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
         {
-            player_one.moveDown();
+            player_one.yPos(player_one.yPos()+(PADDLE_SPEED/10));
         }
         else if (two_player)
         {
             if (key->key == ASGE::KEYS::KEY_UP && player_two.yPos() > BOUNDARY)
             {
-                player_two.moveUp();
+                player_two.yPos(player_two.yPos()-(PADDLE_SPEED/10));
             }
-            else if (key->key == ASGE::KEYS::KEY_DOWN && player_two.yPos() + player_two.paddleHeight() < game_height - BOUNDARY)
+            else if (key->key == ASGE::KEYS::KEY_DOWN && player_two.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
             {
-                player_two.moveDown();
+                player_two.yPos(player_two.yPos()+(PADDLE_SPEED/10));
             }
         }
-        if (key->key == ASGE::KEYS::KEY_ESCAPE)
+        if (key->key == ASGE::KEYS::KEY_ESCAPE &&
+            key->action == ASGE::KEYS::KEY_RELEASED)
         {
             screen_open = QUIT_SCREEN;
             menu_option = 0;
         }
+    }
+    else if (key->key == ASGE::KEYS::KEY_ESCAPE &&
+             key->action == ASGE::KEYS::KEY_RELEASED)
+    {
+        signalExit();
     }
 }
 
@@ -432,15 +362,15 @@ void MyGame::update(const ASGE::GameTime &us)
                 }
 
                 // Move second paddle
-                float middlePos = player_two.yPos() + (player_two.paddleHeight() / 2);
+                float middlePos = player_two.yPos() + (PADDLE_HEIGHT / 2);
                 if (ai_ball.yPos() < middlePos && player_two.yPos() > BOUNDARY)
                 {
-                    float new_y = player_two.yPos() - (player_two.paddleSpeed() * us.delta_time.count()/1000.f);
+                    float new_y = player_two.yPos() - (PADDLE_SPEED * us.delta_time.count()/1000.f);
                     player_two.yPos(new_y);
                 }
-                else if (ai_ball.yPos() > middlePos && player_two.yPos() + player_two.paddleHeight() < game_height - BOUNDARY)
+                else if (ai_ball.yPos() > middlePos && player_two.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
                 {
-                    float new_y = player_two.yPos() + (player_two.paddleSpeed() * us.delta_time.count()/1000.f);
+                    float new_y = player_two.yPos() + (PADDLE_SPEED * us.delta_time.count()/1000.f);
                     player_two.yPos(new_y);
                 }
             }
@@ -449,12 +379,12 @@ void MyGame::update(const ASGE::GameTime &us)
         // If the ball had gone off the sides of the screen, award points.
         if (ball.xPos() <= -ball.ballSize())
         {
-            player_two.updateScore(1);
+            player_two.increaseScore();
             ball.reset();
         }
         else if (ball.xPos() >= game_width)
         {
-            player_one.updateScore(1);
+            player_one.increaseScore();
             ball.reset();
         }
 
@@ -482,22 +412,27 @@ void MyGame::renderMainMenu()
 {
     renderer->renderSprite(*menu_screen);
 
-    renderer->renderText(menu_option == 0 ? ">> Play" : "   Play",
-                         425, 350, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Press ENTER to play",
+                         375, 350, 1.5, ASGE::COLOURS::WHITE);
 
-    renderer->renderText(menu_option == 1 ? ">> Quit" : "   Quit",
-                         425, 450, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Press ESC to quit",
+                         375, 450, 1.5, ASGE::COLOURS::WHITE);
 }
 
 void MyGame::renderGameOptionsMenu()
 {
-    renderer->renderSprite(*game_options_menu);
+    renderer->renderSprite(*background);
 
     renderer->renderText(menu_option == 0 ? ">> Player vs Player" : "   Player vs Player",
-                         340, 350, 1.5, ASGE::COLOURS::WHITE);
+                         340, 250, 1.5, ASGE::COLOURS::WHITE);
 
     renderer->renderText(menu_option == 1 ? ">> Player vs Computer" : "   Player vs Computer",
-                         340, 450, 1.5, ASGE::COLOURS::WHITE);
+                         340, 300, 1.5, ASGE::COLOURS::WHITE);
+
+    renderer->renderText("Player One uses W and S",
+                         315, 450, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Player Two uses Up and Down",
+                         300, 500, 1.5, ASGE::COLOURS::WHITE);
 }
 
 void MyGame::renderGameScreen()
@@ -524,28 +459,26 @@ void MyGame::renderGameOver()
 
     std::string score_one = "Player One Score: ";
     score_one += std::to_string(player_one.playerScore());
-    renderer->renderText(score_one, 384, 300, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText(score_one, 380, 300, 1.5, ASGE::COLOURS::WHITE);
 
     std::string score_two = "Player Two Score: ";
     score_two += std::to_string(player_two.playerScore());
-    renderer->renderText(score_two, 384, 400, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText(score_two, 380, 400, 1.5, ASGE::COLOURS::WHITE);
 
-    renderer->renderText(menu_option == 0 ? ">> Main Menu" : "   Main Menu",
-                         400, 550, 1.5, ASGE::COLOURS::WHITE);
-    renderer->renderText(menu_option == 1 ? ">> Quit" : "   Quit",
-                         400, 650, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Press ENTER to return to main menu",
+                         350, 550, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Press ESC to quit",
+                         375, 600, 1.5, ASGE::COLOURS::WHITE);
 }
 
 void MyGame::renderQuitScreen()
 {
-    renderer->renderSprite(*quit_screen);
+    renderer->renderSprite(*background);
 
-    renderer->renderText(menu_option == 0 ? ">> Resume" : "   Resume",
-                         400, 350, 1.5, ASGE::COLOURS::WHITE);
-    renderer->renderText(menu_option == 1 ? ">> Main Menu" : "   Main Menu",
-                         400, 450, 1.5, ASGE::COLOURS::WHITE);
-    renderer->renderText(menu_option == 2 ? ">> Quit" : "   Quit",
-                         400, 550, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Press ENTER to resume",
+                         375, 350, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Press ESC to quit",
+                         380, 450, 1.5, ASGE::COLOURS::WHITE);
 }
 
 void MyGame::render(const ASGE::GameTime &us)
@@ -557,10 +490,6 @@ void MyGame::render(const ASGE::GameTime &us)
     else if (screen_open == GAME_OPTION_SCREEN)
     {
         renderGameOptionsMenu();
-    }
-    else if (screen_open == CONTROLS_SCREEN)
-    {
-        renderer->renderSprite(*controls_screen);
     }
     else if (screen_open == GAME_SCREEN)
     {

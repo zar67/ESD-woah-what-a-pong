@@ -60,11 +60,9 @@ private:
 
     // Sprite Objects
     ASGE::Sprite* menu_screen = nullptr;
-    ASGE::Sprite* game_options_menu = nullptr;
-    ASGE::Sprite* controls_screen = nullptr;
+    ASGE::Sprite* background = nullptr;
     ASGE::Sprite* game_screen = nullptr;
     ASGE::Sprite* game_over_screen = nullptr;
-    ASGE::Sprite* quit_screen = nullptr;
 
     // Used to determine what screen should be rendered.
     int screen_open = 0;

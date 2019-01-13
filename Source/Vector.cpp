@@ -11,12 +11,6 @@ Vector::Vector(float x_dir, float y_dir)
     y = y_dir;
 }
 
-void Vector::setValues(float new_x, float new_y)
-{
-    x = new_x;
-    y = new_y;
-}
-
 void Vector::multiplyBy(float x_scale, float y_scale)
 {
     x *= x_scale;

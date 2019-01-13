@@ -11,7 +11,6 @@ public:
     Vector(float x_dir, float y_dir);
 
     // Setters
-    void setValues(float new_x, float new_y);
     void multiplyBy(float x_scale, float y_scale);
     void normalise();
 
