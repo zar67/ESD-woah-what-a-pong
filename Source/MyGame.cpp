@@ -80,7 +80,8 @@ bool MyGame::init()
     renderer->setSpriteMode(ASGE::SpriteSortMode::IMMEDIATE);
     inputs->use_threads = false;
 
-    key_callback_id = inputs->addCallbackFnc(ASGE::E_KEY, &MyGame::keyHandler, this);
+    key_callback_id = inputs->addCallbackFnc(
+            ASGE::E_KEY, &MyGame::keyHandler, this);
 
     // Load the Game Screen sprite
     game_screen = renderer->createRawSprite();
@@ -124,15 +125,16 @@ void MyGame::resetGame()
     player_two.reset();
 }
 
-Vector MyGame::calculateNewDir(Player paddle, float y, float y_dir, float size, float speed)
+Vector MyGame::calculateNewDir(Player paddle, float y, float y_dir,
+                               float size, float speed)
 {
     float prev_y = y_dir;
     // Calculate where the ball hit by a number from -1 to 1.
-    float paddle_intersect = (paddle.yPos() + (PADDLE_HEIGHT / 2)) - (y + (size / 2));
+    float paddle_intersect = (paddle.yPos()+(PADDLE_HEIGHT/2)) - (y + (size/2));
     float normalised_intersect = (paddle_intersect/(PADDLE_HEIGHT/2));
 
-    // Convert the number to a radian value.
-    double bounce_angle = normalised_intersect * 1.0472; // 1.309 radians = 60 degrees.
+    // Convert the number to a radian value. 1.309 radians = 60 degrees
+    double bounce_angle = normalised_intersect * 1.0472;
 
     // Get the direction the ball should go in.
     Vector new_dir = Vector(speed*cos(bounce_angle), speed*sin(bounce_angle));
@@ -149,7 +151,7 @@ Vector MyGame::calculateNewDir(Player paddle, float y, float y_dir, float size, 
 
 Vector MyGame::intersect(Vector p1, Vector p2, Vector q1, Vector q2)
 {
-    // Get the equations of the two lines by getting their gradient and y-intercept.
+    // Get the equations of the two lines by the gradient and y-intercept.
     float p_gradient = (p2.yPos() - p1.yPos()) / (p2.xPos() - p1.xPos());
     float p_intercept = p1.yPos() - (p_gradient * p1.xPos());
 
@@ -159,7 +161,8 @@ Vector MyGame::intersect(Vector p1, Vector p2, Vector q1, Vector q2)
     if (p_gradient != q_gradient)
     {
         // Get the intersect point.
-        float intersect_x = (q_intercept - p_intercept) / (p_gradient - q_gradient);
+        float intersect_x = (q_intercept - p_intercept) /
+                            (p_gradient - q_gradient);
         float intersect_y = p_gradient * intersect_x + p_intercept;
 
         return Vector(intersect_x, intersect_y);
@@ -170,17 +173,22 @@ Vector MyGame::intersect(Vector p1, Vector p2, Vector q1, Vector q2)
     }
 }
 
-Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir, float size, float speed)
+Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
+                                     float size, float speed)
 {
     Vector new_dir = Vector(x_dir, y_dir);
-    // Find the intersection point between the ball's direction and the top boundary.
+    // Find the intersect point between the ball and the top boundary.
     Vector intersect_vector = intersect(
             Vector(x, y),
             Vector(x + (x_dir * 100), y + (y_dir * 100)),
             Vector(0,BOUNDARY),
             Vector(game_width,BOUNDARY));
-    // If the ball intersects with the top and it hits within the screen limits and the balls position is on the top boundary, the ball has hit the top.
-    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) && intersect_vector.xPos() >= -size && intersect_vector.xPos() <= game_width + size && y <= intersect_vector.yPos())
+    // If the ball intersects with the top and it hits within the screen limits
+    // and the balls position is on the top boundary, the ball has hit the top.
+    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
+         intersect_vector.xPos() >= -size &&
+         intersect_vector.xPos() <= game_width + size &&
+         y <= intersect_vector.yPos())
     {
         new_dir.multiplyBy(1, -1);
         return new_dir;
@@ -192,7 +200,10 @@ Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
             Vector(x + (x_dir * 100), y + (y * 100)),
             Vector(0,game_height-BOUNDARY),
             Vector(game_width,game_height-BOUNDARY));
-    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) && intersect_vector.xPos() >= -size && intersect_vector.xPos() <= game_width + size && (y + size) >= intersect_vector.yPos())
+    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
+         intersect_vector.xPos() >= -size &&
+         intersect_vector.xPos() <= game_width + size &&
+         (y + size) >= intersect_vector.yPos())
     {
         new_dir.multiplyBy(1, -1);
         return new_dir;
@@ -204,7 +215,11 @@ Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
             Vector(x + (x_dir * 100), y + (y_dir * 100)),
             Vector(player_one.xPos() + PADDLE_WIDTH+1, 0),
             Vector(player_one.xPos() + PADDLE_WIDTH, game_height));
-    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) && intersect_vector.yPos() >= player_one.yPos() && intersect_vector.yPos() <= (player_one.yPos() + PADDLE_HEIGHT) && x <= intersect_vector.xPos() && x >= player_one.xPos() && x_dir<= 0)
+    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
+         intersect_vector.yPos() >= player_one.yPos() &&
+         intersect_vector.yPos() <= (player_one.yPos() + PADDLE_HEIGHT) &&
+         x <= intersect_vector.xPos() &&
+         x >= player_one.xPos() && x_dir<= 0)
     {
         if (!two_player)
         {
@@ -225,7 +240,12 @@ Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
             Vector(x + size+ (x_dir * 100), y + (y_dir * 100)),
             Vector(player_two.xPos()+1, 0),
             Vector(player_two.xPos(), game_height));
-    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) && intersect_vector.yPos() >= player_two.yPos() && intersect_vector.yPos() <= (player_two.yPos() + PADDLE_HEIGHT) && (x + size) >= intersect_vector.xPos() && (x + size) <= (intersect_vector.xPos() + PADDLE_WIDTH) && x_dir >= 0)
+    if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
+         intersect_vector.yPos() >= player_two.yPos() &&
+         intersect_vector.yPos() <= (player_two.yPos() + PADDLE_HEIGHT) &&
+         (x + size) >= intersect_vector.xPos() &&
+         (x + size) <= (intersect_vector.xPos() + PADDLE_WIDTH) &&
+         x_dir >= 0)
     {
         new_dir = calculateNewDir(player_two, y, y_dir, size, speed);
         new_dir.multiplyBy(-1, 1);
@@ -292,17 +312,20 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
         {
             player_one.yPos(player_one.yPos()-(PADDLE_SPEED/10));
         }
-        else if (key->key == ASGE::KEYS::KEY_S && player_one.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
+        else if (key->key == ASGE::KEYS::KEY_S &&
+                 player_one.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
         {
             player_one.yPos(player_one.yPos()+(PADDLE_SPEED/10));
         }
         else if (two_player)
         {
-            if (key->key == ASGE::KEYS::KEY_UP && player_two.yPos() > BOUNDARY)
+            if (key->key == ASGE::KEYS::KEY_UP &&
+                player_two.yPos() > BOUNDARY)
             {
                 player_two.yPos(player_two.yPos()-(PADDLE_SPEED/10));
             }
-            else if (key->key == ASGE::KEYS::KEY_DOWN && player_two.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
+            else if (key->key == ASGE::KEYS::KEY_DOWN &&
+                     player_two.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
             {
                 player_two.yPos(player_two.yPos()+(PADDLE_SPEED/10));
             }
@@ -328,9 +351,11 @@ void MyGame::update(const ASGE::GameTime &us)
         ball.ballSpeed(ball.ballSpeed()+0.01f);
 
         // Move Ball
-        float new_x = ball.xPos() + (ball.ballSpeed() * ball.xDir() * (us.delta_time.count()/ 1000.f));
+        float new_x = ball.xPos() +
+                (ball.ballSpeed()*ball.xDir()*(us.delta_time.count()/ 1000.f));
         ball.xPos(new_x);
-        float new_y = ball.yPos() + (ball.ballSpeed() * ball.yDir() * (us.delta_time.count()/ 1000.f));
+        float new_y = ball.yPos() +
+                (ball.ballSpeed()*ball.yDir()*(us.delta_time.count()/ 1000.f));
         ball.yPos(new_y);
 
         // Update positions
@@ -345,9 +370,13 @@ void MyGame::update(const ASGE::GameTime &us)
                 ai_ball.ballSpeed(ball.ballSpeed()*1.5f);
 
                 // Move AI Ball
-                new_x = ai_ball.xPos() + (ai_ball.ballSpeed() * ai_ball.xDir() * (us.delta_time.count()/ 1000.f));
+                new_x = ai_ball.xPos() +
+                        (ai_ball.ballSpeed() * ai_ball.xDir() *
+                        (us.delta_time.count()/ 1000.f));
                 ai_ball.xPos(new_x);
-                new_y = ai_ball.yPos() + (ai_ball.ballSpeed() * ai_ball.yDir() * (us.delta_time.count()/ 1000.f));
+                new_y = ai_ball.yPos() +
+                        (ai_ball.ballSpeed() * ai_ball.yDir() *
+                        (us.delta_time.count()/ 1000.f));
                 ai_ball.yPos(new_y);
 
                 Vector new_dir = rayCollisionDetection(
@@ -365,12 +394,14 @@ void MyGame::update(const ASGE::GameTime &us)
                 float middlePos = player_two.yPos() + (PADDLE_HEIGHT / 2);
                 if (ai_ball.yPos() < middlePos && player_two.yPos() > BOUNDARY)
                 {
-                    float new_y = player_two.yPos() - (PADDLE_SPEED * us.delta_time.count()/1000.f);
+                    float new_y = player_two.yPos() -
+                            (PADDLE_SPEED * us.delta_time.count()/1000.f);
                     player_two.yPos(new_y);
                 }
                 else if (ai_ball.yPos() > middlePos && player_two.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
                 {
-                    float new_y = player_two.yPos() + (PADDLE_SPEED * us.delta_time.count()/1000.f);
+                    float new_y = player_two.yPos() +
+                            (PADDLE_SPEED * us.delta_time.count()/1000.f);
                     player_two.yPos(new_y);
                 }
             }
@@ -423,11 +454,13 @@ void MyGame::renderGameOptionsMenu()
 {
     renderer->renderSprite(*background);
 
-    renderer->renderText(menu_option == 0 ? ">> Player vs Player" : "   Player vs Player",
-                         340, 250, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText(
+            menu_option == 0 ? ">> Player vs Player" : "   Player vs Player",
+            340, 250, 1.5, ASGE::COLOURS::WHITE);
 
-    renderer->renderText(menu_option == 1 ? ">> Player vs Computer" : "   Player vs Computer",
-                         340, 300, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText(
+            menu_option == 1 ? ">> Player vs Computer" : "   Player vs Computer",
+            340, 300, 1.5, ASGE::COLOURS::WHITE);
 
     renderer->renderText("Player One uses W and S",
                          315, 450, 1.5, ASGE::COLOURS::WHITE);

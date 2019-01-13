@@ -20,7 +20,7 @@ public:
 
     // Initialises the sprite, loading in the texture and setting the size.
     void initSprite(ASGE::Sprite* rawSprite);
-    // Deals with the deleting of the dynamic sprite, called in the game's destructor.
+    // Deals with the deleting of the sprite, called in the game's destructor.
     void deleteSprite();
     void updatePosition();
 
