@@ -17,6 +17,11 @@ void Player::yPos(float new_y)
     y = new_y;
 }
 
+void Player::move(int m)
+{
+    moving = m;
+}
+
 void Player::increaseScore()
 {
     score += 1;
@@ -38,9 +43,16 @@ void Player::deleteSprite()
     sprite = nullptr;
 }
 
-void Player::updatePosition()
+void Player::updatePosition(double delta)
 {
-    sprite->xPos(x);
+    if (moving < 0)
+    {
+        y -= move_speed * delta;
+    }
+    else if (moving > 0)
+    {
+        y += move_speed * delta;
+    }
     sprite->yPos(y);
 }
 
@@ -59,6 +71,11 @@ float Player::xPos()
 float Player::yPos()
 {
     return y;
+}
+
+float Player::speed()
+{
+    return move_speed;
 }
 
 int Player::playerScore()

@@ -14,6 +14,7 @@ public:
 
     // Setters
     void yPos(float new_y);
+    void move(int m);
 
     // Adds the to_add value on to the score.
     void increaseScore();
@@ -22,13 +23,14 @@ public:
     void initSprite(ASGE::Sprite* rawSprite);
     // Deals with the deleting of the sprite, called in the game's destructor.
     void deleteSprite();
-    void updatePosition();
+    void updatePosition(double delta);
 
     void reset();
 
     // Getters
     float xPos();
     float yPos();
+    float speed();
     int playerScore();
 
     // Returns the sprite for rendering purposes.
@@ -40,6 +42,10 @@ private:
     float start_y;
     float y;
     int score = 0;
+    float move_speed = 300;
+
+    // A value set to either -1, 0 or 1 to determine where the player moves.
+    int moving = 0;
     ASGE::Sprite* sprite = nullptr;
 };
 

@@ -19,10 +19,6 @@
 
 #define PADDLE_WIDTH 20
 #define PADDLE_HEIGHT 120
-#define PADDLE_SPEED 300
-
-// TODO: Make paddle movement smoother by using delta time
-// TODO: Load font into game
 
 MyGame::MyGame()
 {
@@ -301,26 +297,51 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
     }
     else if (screen_open == GAME_SCREEN)
     {
-        if (key->key == ASGE::KEYS::KEY_W && player_one.yPos() > BOUNDARY)
+        if (key->key == ASGE::KEYS::KEY_W)
         {
-            player_one.yPos(player_one.yPos()-(PADDLE_SPEED/10));
+            if (key->action == ASGE::KEYS::KEY_RELEASED)
+            {
+                player_one.move(0);
+            }
+            else if (player_one.yPos() > BOUNDARY)
+            {
+                player_one.move(-1);
+            }
         }
-        else if (key->key == ASGE::KEYS::KEY_S &&
-                 player_one.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
+        else if (key->key == ASGE::KEYS::KEY_S)
         {
-            player_one.yPos(player_one.yPos()+(PADDLE_SPEED/10));
+            if (key->action == ASGE::KEYS::KEY_RELEASED)
+            {
+                player_one.move(0);
+            }
+            else if (player_one.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
+            {
+                player_one.move(1);
+            }
         }
         else if (two_player)
         {
-            if (key->key == ASGE::KEYS::KEY_UP &&
-                player_two.yPos() > BOUNDARY)
+            if (key->key == ASGE::KEYS::KEY_UP)
             {
-                player_two.yPos(player_two.yPos()-(PADDLE_SPEED/10));
+                if (key->action == ASGE::KEYS::KEY_RELEASED)
+                {
+                    player_one.move(0);
+                }
+                else if (player_two.yPos() > BOUNDARY)
+                {
+                    player_two.move(-1);
+                }
             }
-            else if (key->key == ASGE::KEYS::KEY_DOWN &&
-                     player_two.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
+            else if (key->key == ASGE::KEYS::KEY_DOWN)
             {
-                player_two.yPos(player_two.yPos()+(PADDLE_SPEED/10));
+                if (key->action == ASGE::KEYS::KEY_RELEASED)
+                {
+                    player_two.move(0);
+                }
+                else if (player_two.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
+                {
+                    player_two.move(1);
+                }
             }
         }
         if (key->key == ASGE::KEYS::KEY_ESCAPE &&
@@ -353,8 +374,8 @@ void MyGame::update(const ASGE::GameTime &us)
 
         // Update positions
         ball.updatePosition();
-        player_one.updatePosition();
-        player_two.updatePosition();
+        player_one.updatePosition(us.delta_time.count()/ 1000.f);
+        player_two.updatePosition(us.delta_time.count()/ 1000.f);
 
         if (!two_player)
         {
@@ -388,13 +409,13 @@ void MyGame::update(const ASGE::GameTime &us)
                 if (ai_ball.yPos() < middlePos && player_two.yPos() > BOUNDARY)
                 {
                     float new_y = player_two.yPos() -
-                            (PADDLE_SPEED * us.delta_time.count()/1000.f);
+                            (player_two.speed() * us.delta_time.count()/1000.f);
                     player_two.yPos(new_y);
                 }
                 else if (ai_ball.yPos() > middlePos && player_two.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
                 {
                     float new_y = player_two.yPos() +
-                            (PADDLE_SPEED * us.delta_time.count()/1000.f);
+                            (player_two.speed() * us.delta_time.count()/1000.f);
                     player_two.yPos(new_y);
                 }
             }
