@@ -308,7 +308,7 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
                 player_one.move(-1);
             }
         }
-        else if (key->key == ASGE::KEYS::KEY_S)
+        if (key->key == ASGE::KEYS::KEY_S)
         {
             if (key->action == ASGE::KEYS::KEY_RELEASED)
             {
@@ -332,7 +332,7 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
                     player_two.move(-1);
                 }
             }
-            else if (key->key == ASGE::KEYS::KEY_DOWN)
+            if (key->key == ASGE::KEYS::KEY_DOWN)
             {
                 if (key->action == ASGE::KEYS::KEY_RELEASED)
                 {
@@ -385,6 +385,7 @@ void MyGame::update(const ASGE::GameTime &us)
             player_one.move(0);
             player_one.yPos(BOUNDARY+1);
         }
+        player_one.updatePosition(us.delta_time.count()/ 1000.f);
 
         if (two_player)
         {
@@ -399,10 +400,7 @@ void MyGame::update(const ASGE::GameTime &us)
                 player_two.yPos(BOUNDARY+1);
             }
         }
-        player_one.updatePosition(us.delta_time.count()/ 1000.f);
-        player_two.updatePosition(us.delta_time.count()/ 1000.f);
-
-        if (!two_player)
+        else
         {
             if (track_ball)
             {
@@ -445,6 +443,7 @@ void MyGame::update(const ASGE::GameTime &us)
                 }
             }
         }
+        player_two.updatePosition(us.delta_time.count()/ 1000.f);
 
         // If the ball had gone off the sides of the screen, award points.
         if (ball.xPos() <= -ball.ballSize())
