@@ -84,7 +84,8 @@ Vector MyGame::calculateNewDir(Player paddle, float y, float y_dir,
     float normalised_intersect = (paddle_intersect/(PADDLE_HEIGHT/2));
 
     // Convert the number to a radian value. 1.309 radians = 60 degrees
-    double bounce_angle = normalised_intersect * 1.0472;
+    const float radians = 1.0472;
+    double bounce_angle = normalised_intersect * radians;
 
     // Get the direction the ball should go in.
     Vector new_dir = Vector(float(speed*cos(bounce_angle)), float(speed*sin(bounce_angle)));
@@ -123,16 +124,21 @@ Vector MyGame::intersect(Vector p1, Vector p2, Vector q1, Vector q2)
     }
 }
 
+// Feedback: Consider breaking each condition down in to it's own functions. In
+// play-through the ball would often get stuck, so this would need further refinement.
 Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
                                      float size, float speed)
 {
     Vector new_dir = Vector(x_dir, y_dir);
+
     // Find the intersect point between the ball and the top boundary.
     Vector intersect_vector = intersect(
             Vector(x, y),
             Vector(x + (x_dir * 100), y + (y_dir * 100)),
             Vector(0,0),
             Vector(game_width,0));
+
+
     // If the ball intersects with the top and it hits within the screen limits
     // and the balls position is on the top boundary, the ball has hit the top.
     if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
@@ -151,6 +157,7 @@ Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
             Vector(x + (x_dir * 100), y + (y * 100)),
             Vector(0,game_height),
             Vector(game_width,game_height));
+
     if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
          intersect_vector.xPos() >= -size &&
          intersect_vector.xPos() <= game_width + size &&
@@ -252,6 +259,9 @@ void MyGame::keyHandler(const ASGE::SharedEventData data)
         screen_open = MENU_SCREEN;
         resetGame();
     }
+
+    // Feedback: use functions for each game state or
+    // even additional callbacks. It would stop this very long list
     else if (screen_open == GAME_SCREEN)
     {
         if (key->key == ASGE::KEYS::KEY_W)
@@ -325,6 +335,7 @@ void MyGame::update(const ASGE::GameTime &us)
         float new_x = ball.xPos() +
                 float(ball.ballSpeed()*ball.xDir()*(us.delta_time.count()/ 1000.f));
         ball.xPos(new_x);
+
         float new_y = ball.yPos() +
                 float(ball.ballSpeed()*ball.yDir()*(us.delta_time.count()/ 1000.f));
         ball.yPos(new_y);
@@ -359,8 +370,10 @@ void MyGame::update(const ASGE::GameTime &us)
         }
         else
         {
+            // Feedback: Why not create an AI class and move this login in to it
             if (track_ball)
             {
+                // 1.5f?
                 ai_ball.ballSpeed(ball.ballSpeed()*1.5f);
 
                 // Move AI Ball

@@ -37,10 +37,10 @@ public:
     ASGE::Sprite* getSprite();
 
 private:
-    float start_x;
-    float x;
-    float start_y;
-    float y;
+    float start_x = -1;
+    float x = -1;
+    float start_y = -1;
+    float y = -1;
     int score = 0;
     float move_speed = 350;
 

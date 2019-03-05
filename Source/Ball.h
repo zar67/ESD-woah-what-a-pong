@@ -42,8 +42,8 @@ public:
 private:
     float speed;
     float size = 26;
-    float x;
-    float y;
+    float x = -1;
+    float y = -1;
     Vector direction = Vector(0.0f,0.0f);
     ASGE::Sprite* sprite = nullptr;
 };
