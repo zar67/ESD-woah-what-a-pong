@@ -15,10 +15,8 @@
 #define GAME_OVER_SCREEN 2
 #define QUIT_SCREEN 3
 
-#define BOUNDARY 85.0f
-
-#define PADDLE_WIDTH 10
-#define PADDLE_HEIGHT 120
+#define PADDLE_WIDTH 10.0f
+#define PADDLE_HEIGHT 120.0f
 
 MyGame::MyGame()
 {
@@ -32,26 +30,6 @@ MyGame::~MyGame()
     this->inputs->unregisterCallback(key_callback_id);
     this->inputs->unregisterCallback(mouse_callback_id);
 
-    if (game_screen)
-    {
-        delete game_screen;
-        game_screen = nullptr;
-    }
-    if (menu_screen)
-    {
-        delete menu_screen;
-        menu_screen = nullptr;
-    }
-    if (background)
-    {
-        delete background;
-        background = nullptr;
-    }
-    if (game_over_screen)
-    {
-        delete game_over_screen;
-        game_over_screen = nullptr;
-    }
     if (ball.getSprite())
     {
         ball.deleteSprite();
@@ -73,39 +51,16 @@ bool MyGame::init()
         return false;
 
     renderer->setSpriteMode(ASGE::SpriteSortMode::IMMEDIATE);
+    renderer->setClearColour(ASGE::COLOURS::BLACK);
     inputs->use_threads = false;
 
     key_callback_id = inputs->addCallbackFnc(
             ASGE::E_KEY, &MyGame::keyHandler, this);
 
-    // Load the Game Screen sprite
-    game_screen = renderer->createRawSprite();
-    game_screen->loadTexture("data/images/game_screen.png");
-    game_screen->width(game_width);
-    game_screen->height(game_height);
-
-    // Load the Background sprite
-    background = renderer->createRawSprite();
-    background->loadTexture("data/images/game_options_menu.png");
-    background->width(game_width);
-    background->height(game_height);
-
-    // Load the Main Menu Screen sprite
-    menu_screen = renderer->createRawSprite();
-    menu_screen->loadTexture("data/images/menu_screen.png");
-    menu_screen->width(game_width);
-    menu_screen->height(game_height);
-
     // Load the Game Sprites
     player_one.initSprite(renderer->createRawSprite());
     player_two.initSprite(renderer->createRawSprite());
     ball.initSprite(renderer->createRawSprite());
-
-    // Load the Game Over Screen sprite
-    game_over_screen = renderer->createRawSprite();
-    game_over_screen->loadTexture("data/images/game_over_screen.png");
-    game_over_screen->width(game_width);
-    game_over_screen->height(game_height);
 
     toggleFPS();
 
@@ -132,7 +87,7 @@ Vector MyGame::calculateNewDir(Player paddle, float y, float y_dir,
     double bounce_angle = normalised_intersect * 1.0472;
 
     // Get the direction the ball should go in.
-    Vector new_dir = Vector(speed*cos(bounce_angle), speed*sin(bounce_angle));
+    Vector new_dir = Vector(float(speed*cos(bounce_angle)), float(speed*sin(bounce_angle)));
 
     // Ensure ball has been reflected to go in the opposite Y direction.
     if ((prev_y < 0 && y_dir > 0) || (prev_y > 0 && y_dir < 0))
@@ -176,14 +131,15 @@ Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
     Vector intersect_vector = intersect(
             Vector(x, y),
             Vector(x + (x_dir * 100), y + (y_dir * 100)),
-            Vector(0,BOUNDARY),
-            Vector(game_width,BOUNDARY));
+            Vector(0,0),
+            Vector(game_width,0));
     // If the ball intersects with the top and it hits within the screen limits
     // and the balls position is on the top boundary, the ball has hit the top.
     if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
          intersect_vector.xPos() >= -size &&
          intersect_vector.xPos() <= game_width + size &&
-         y <= intersect_vector.yPos())
+         y <= intersect_vector.yPos() &&
+         ball.yDir() < 0)
     {
         new_dir.multiplyBy(1, -1);
         return new_dir;
@@ -193,12 +149,13 @@ Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
     intersect_vector = intersect(
             Vector(x, y),
             Vector(x + (x_dir * 100), y + (y * 100)),
-            Vector(0,game_height-BOUNDARY),
-            Vector(game_width,game_height-BOUNDARY));
+            Vector(0,game_height),
+            Vector(game_width,game_height));
     if ((intersect_vector.xPos() != 0 || intersect_vector.yPos() != 0) &&
          intersect_vector.xPos() >= -size &&
          intersect_vector.xPos() <= game_width + size &&
-         (y + size) >= intersect_vector.yPos())
+         (y + size) >= intersect_vector.yPos() &&
+         ball.yDir() > 0)
     {
         new_dir.multiplyBy(1, -1);
         return new_dir;
@@ -214,7 +171,7 @@ Vector MyGame::rayCollisionDetection(float x, float y, float x_dir, float y_dir,
          intersect_vector.yPos() >= player_one.yPos() &&
          intersect_vector.yPos() <= (player_one.yPos() + PADDLE_HEIGHT) &&
          x <= intersect_vector.xPos() &&
-         x >= player_one.xPos() && x_dir<= 0)
+         x >= player_one.xPos() && x_dir <= 0)
     {
         if (!two_player)
         {
@@ -366,38 +323,38 @@ void MyGame::update(const ASGE::GameTime &us)
 
         // Move Ball
         float new_x = ball.xPos() +
-                (ball.ballSpeed()*ball.xDir()*(us.delta_time.count()/ 1000.f));
+                float(ball.ballSpeed()*ball.xDir()*(us.delta_time.count()/ 1000.f));
         ball.xPos(new_x);
         float new_y = ball.yPos() +
-                (ball.ballSpeed()*ball.yDir()*(us.delta_time.count()/ 1000.f));
+                float(ball.ballSpeed()*ball.yDir()*(us.delta_time.count()/ 1000.f));
         ball.yPos(new_y);
 
         // Update positions
         ball.updatePosition();
 
-        if (player_one.yPos() + PADDLE_HEIGHT > game_height - BOUNDARY)
+        if (player_one.yPos() + PADDLE_HEIGHT > game_height)
         {
             player_one.move(0);
-            player_one.yPos(game_height-BOUNDARY-1-PADDLE_HEIGHT);
+            player_one.yPos(game_height-1-PADDLE_HEIGHT);
         }
-        else if (player_one.yPos() < BOUNDARY)
+        else if (player_one.yPos() < 0)
         {
             player_one.move(0);
-            player_one.yPos(BOUNDARY+1);
+            player_one.yPos(1);
         }
         player_one.updatePosition(us.delta_time.count()/ 1000.f);
 
         if (two_player)
         {
-            if (player_two.yPos() + PADDLE_HEIGHT > game_height - BOUNDARY)
+            if (player_two.yPos() + PADDLE_HEIGHT > game_height)
             {
                 player_two.move(0);
-                player_two.yPos(game_height-BOUNDARY-1-PADDLE_HEIGHT);
+                player_two.yPos(game_height-1-PADDLE_HEIGHT);
             }
-            else if (player_two.yPos() < BOUNDARY)
+            else if (player_two.yPos() < 0)
             {
                 player_two.move(0);
-                player_two.yPos(BOUNDARY+1);
+                player_two.yPos(1);
             }
         }
         else
@@ -407,13 +364,13 @@ void MyGame::update(const ASGE::GameTime &us)
                 ai_ball.ballSpeed(ball.ballSpeed()*1.5f);
 
                 // Move AI Ball
-                new_x = ai_ball.xPos() +
+                new_x = float(ai_ball.xPos() +
                         (ai_ball.ballSpeed() * ai_ball.xDir() *
-                        (us.delta_time.count()/ 1000.f));
+                        (us.delta_time.count()/ 1000.f)));
                 ai_ball.xPos(new_x);
-                new_y = ai_ball.yPos() +
+                new_y = float(ai_ball.yPos() +
                         (ai_ball.ballSpeed() * ai_ball.yDir() *
-                        (us.delta_time.count()/ 1000.f));
+                        (us.delta_time.count()/ 1000.f)));
                 ai_ball.yPos(new_y);
 
                 Vector new_dir = rayCollisionDetection(
@@ -429,16 +386,16 @@ void MyGame::update(const ASGE::GameTime &us)
 
                 // Move second paddle
                 float middlePos = player_two.yPos() + (PADDLE_HEIGHT / 2);
-                if (ai_ball.yPos() < middlePos && player_two.yPos() > BOUNDARY)
+                if (ai_ball.yPos() < middlePos && player_two.yPos() > 0)
                 {
-                    float new_y = player_two.yPos() -
-                            (player_two.speed() * us.delta_time.count()/1000.f);
+                    new_y = float(player_two.yPos() -
+                            (player_two.speed() * us.delta_time.count()/1000.f));
                     player_two.yPos(new_y);
                 }
-                else if (ai_ball.yPos() > middlePos && player_two.yPos() + PADDLE_HEIGHT < game_height - BOUNDARY)
+                else if (ai_ball.yPos() > middlePos && player_two.yPos() + PADDLE_HEIGHT < game_height)
                 {
-                    float new_y = player_two.yPos() +
-                            (player_two.speed() * us.delta_time.count()/1000.f);
+                    new_y = float(player_two.yPos() +
+                            (player_two.speed() * us.delta_time.count()/1000.f));
                     player_two.yPos(new_y);
                 }
             }
@@ -479,7 +436,8 @@ void MyGame::update(const ASGE::GameTime &us)
 
 void MyGame::renderMainMenu()
 {
-    renderer->renderSprite(*menu_screen);
+    renderer->renderText("PING",
+                         470, 200, 2, ASGE::COLOURS::WHITE);
 
     renderer->renderText(
             menu_option == 0 ? ">> Player vs Player" : "   Player vs Player",
@@ -487,21 +445,19 @@ void MyGame::renderMainMenu()
 
     renderer->renderText(
             menu_option == 1 ? ">> Player vs Computer" : "   Player vs Computer",
-            340, 400, 1.5, ASGE::COLOURS::WHITE);
+            320, 400, 1.5, ASGE::COLOURS::WHITE);
 
-    renderer->renderText("Player One's controls are W and S",
-                         295, 520, 1.5, ASGE::COLOURS::WHITE);
-    renderer->renderText("Player Two's controls are Up and Down",
-                         280, 550, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Player One use W and S",
+                         340, 520, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Player Two use Up and Down",
+                         315, 550, 1.5, ASGE::COLOURS::WHITE);
 
     renderer->renderText("Press ESC to quit",
-                         375, 600, 1.5, ASGE::COLOURS::WHITE);
+                         385, 600, 1.5, ASGE::COLOURS::WHITE);
 }
 
 void MyGame::renderGameScreen()
 {
-    renderer->renderSprite(*game_screen);
-
     renderer->renderSprite(*ball.getSprite());
     renderer->renderSprite(*player_one.getSprite());
     renderer->renderSprite(*player_two.getSprite());
@@ -518,28 +474,30 @@ void MyGame::renderGameScreen()
 
 void MyGame::renderGameOver()
 {
-    renderer->renderSprite(*game_over_screen);
+    renderer->renderText("GAME OVER",
+                         410, 200, 2, ASGE::COLOURS::WHITE);
 
     std::string score_one = "Player One Score: ";
     score_one += std::to_string(player_one.playerScore());
-    renderer->renderText(score_one, 380, 300, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText(score_one, 360, 300, 1.5, ASGE::COLOURS::WHITE);
 
     std::string score_two = "Player Two Score: ";
     score_two += std::to_string(player_two.playerScore());
-    renderer->renderText(score_two, 380, 400, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText(score_two, 360, 400, 1.5, ASGE::COLOURS::WHITE);
 
-    renderer->renderText("Press ENTER to return to main menu",
-                         350, 550, 1.5, ASGE::COLOURS::WHITE);
+    renderer->renderText("Press ENTER for the main menu",
+                         270, 550, 1.5, ASGE::COLOURS::WHITE);
     renderer->renderText("Press ESC to quit",
                          375, 600, 1.5, ASGE::COLOURS::WHITE);
 }
 
 void MyGame::renderQuitScreen()
 {
-    renderer->renderSprite(*background);
+    renderer->renderText("QUIT",
+                         470, 200, 2, ASGE::COLOURS::WHITE);
 
     renderer->renderText("Press ENTER to resume",
-                         375, 350, 1.5, ASGE::COLOURS::WHITE);
+                         345, 350, 1.5, ASGE::COLOURS::WHITE);
     renderer->renderText("Press ESC to quit",
                          380, 450, 1.5, ASGE::COLOURS::WHITE);
 }

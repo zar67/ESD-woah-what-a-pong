@@ -23,7 +23,7 @@ set(BUILD_SHARED_LIBS false)
 
 ## itch.io and gamedata settings ##
 set(GAMEDATA_FOLDER "Data")
-set(ITCHIO_USER     "")
+set(ITCHIO_USER     "zoeRowbotham")
 
 ## files used to build this game
 add_executable(

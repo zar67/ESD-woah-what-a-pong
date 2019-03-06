@@ -38,7 +38,7 @@ void Ball::yDir(float new_y)
 void Ball::initSprite(ASGE::Sprite* rawSprite)
 {
     sprite = rawSprite;
-    sprite->loadTexture("data/images/ball.png");
+    sprite->loadTexture("data/images/ballBlue.png");
     sprite->width(size);
     sprite->height(size);
     sprite->xPos(x);

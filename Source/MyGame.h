@@ -65,11 +65,6 @@ private:
     Player player_one = Player(50,324);
     Player player_two = Player(954,324);
 
-    // Sprite Objects
-    ASGE::Sprite* menu_screen = nullptr;
-    ASGE::Sprite* background = nullptr;
-    ASGE::Sprite* game_screen = nullptr;
-    ASGE::Sprite* game_over_screen = nullptr;
 
     // Used to determine what screen should be rendered.
     int screen_open = 0;

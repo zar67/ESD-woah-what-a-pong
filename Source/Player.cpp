@@ -30,9 +30,9 @@ void Player::increaseScore()
 void Player::initSprite(ASGE::Sprite* rawSprite)
 {
     sprite = rawSprite;
-    sprite->loadTexture("data/images/paddle.png");
-    sprite->width(10);
-    sprite->height(120);
+    sprite->loadTexture("data/images/paddleBlu.png");
+    sprite->width(24);
+    sprite->height(104);
     sprite->xPos(x);
     sprite->yPos(y);
 }
