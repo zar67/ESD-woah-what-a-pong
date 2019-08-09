@@ -74,7 +74,7 @@ int CollisionHandler::getCollisionSide(vector2 point, Rectangle col_shape, vecto
 }
 
 vector2
-CollisionHandler::collision(Ball* ball, Player* player_one, Player* player_two, Obstacle* obstacles, int obstacle_num, float screen_height)
+CollisionHandler::collision(Ball* ball, Player* player_one, Player* player_two, Obstacle* obstacles, int obstacle_num, float screen_height, bool hard)
 {
     // Hit top boundary
     if (ball->position().y <= 0 && ball->direction().y < 0)
@@ -149,40 +149,44 @@ CollisionHandler::collision(Ball* ball, Player* player_one, Player* player_two, 
     }
 
     // Hit Any Obstacles
-    for (int i = 0; i < obstacle_num; i++)
+    if (hard)
     {
-        point = AABBCircleCollision(ball->getShape(), obstacles[i].getShape());
-        if (point.x != INVALID || point.y != INVALID)
+        for (int i = 0; i < obstacle_num; i++)
         {
-            int side = getCollisionSide(point, obstacles[i].getShape(), ball->direction());
-
-            switch (side)
+            point = AABBCircleCollision(ball->getShape(), obstacles[i].getShape());
+            if (point.x != INVALID || point.y != INVALID)
             {
-                case SIDE_LEFT:
+                int side = getCollisionSide(point, obstacles[i].getShape(), ball->direction());
+
+                switch (side)
                 {
-                    ball->setPosition(obstacles[i].position().x - ball->width(), ball->position().y);
-                    return vector2(-ball->direction().x, ball->direction().y);
+                    case SIDE_LEFT:
+                    {
+                        ball->setPosition(obstacles[i].position().x - ball->width(), ball->position().y);
+                        return vector2(-ball->direction().x, ball->direction().y);
+                    }
+                    case SIDE_RIGHT:
+                    {
+                        ball->setPosition(obstacles[i].position().x + obstacles[i].width(), ball->position().y);
+                        return vector2(-ball->direction().x, ball->direction().y);
+                    }
+                    case SIDE_TOP:
+                    {
+                        ball->setPosition(ball->position().x, obstacles[i].position().y - ball->height());
+                        return vector2(ball->direction().x, -ball->direction().y);
+                    }
+                    case SIDE_BOTTOM:
+                    {
+                        ball->setPosition(ball->position().x, obstacles[i].position().y + obstacles[i].height());
+                        return vector2(ball->direction().x, -ball->direction().y);
+                    }
+                    default:
+                        return vector2(ball->direction().x, ball->direction().y);
                 }
-                case SIDE_RIGHT:
-                {
-                    ball->setPosition(obstacles[i].position().x + obstacles[i].width(), ball->position().y);
-                    return vector2(-ball->direction().x, ball->direction().y);
-                }
-                case SIDE_TOP:
-                {
-                    ball->setPosition(ball->position().x, obstacles[i].position().y - ball->height());
-                    return vector2(ball->direction().x, -ball->direction().y);
-                }
-                case SIDE_BOTTOM:
-                {
-                    ball->setPosition(ball->position().x, obstacles[i].position().y + obstacles[i].height());
-                    return vector2(ball->direction().x, -ball->direction().y);
-                }
-                default:
-                    return vector2(ball->direction().x, ball->direction().y);
             }
         }
     }
+
 
     return ball->direction();
 }

@@ -361,7 +361,7 @@ void Game::update(const ASGE::GameTime &us)
     {
         // Move GameObjects
         ball.update(us.delta_time.count()/ 1000.f);
-        vector2 new_dir = collision.collision(&ball, &player_one, &player_two, obstacles, OBSTACLE_NUMBER, game_height);
+        vector2 new_dir = collision.collision(&ball, &player_one, &player_two, obstacles, OBSTACLE_NUMBER, game_height, hard);
         ball.setDirection(new_dir.x, new_dir.y);
 
         player_one.update(us.delta_time.count()/ 1000.f, game_height);
@@ -388,7 +388,7 @@ void Game::update(const ASGE::GameTime &us)
             {
                 // Move AI Ball
                 ai_handler.update(us.delta_time.count()/ 1000.f);
-                vector2 new_ai_dir = collision.collision(ai_handler.getAIBall(), &player_one, &player_two, obstacles, OBSTACLE_NUMBER, game_height);
+                vector2 new_ai_dir = collision.collision(ai_handler.getAIBall(), &player_one, &player_two, obstacles, OBSTACLE_NUMBER, game_height, hard);
                 ai_handler.getAIBall()->setDirection(new_ai_dir.x, new_ai_dir.y);
 
                 // Move Second Paddle

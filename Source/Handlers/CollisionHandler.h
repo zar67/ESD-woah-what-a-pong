@@ -24,7 +24,7 @@ public:
     vector2 AABBCircleCollision(Circle circle, Rectangle rectangle);
     int getCollisionSide(vector2 point, Rectangle col_shape, vector2 ball_dir);
 
-    vector2 collision(Ball* ball, Player* player_one, Player* player_two, Obstacle* obstacles, int obstacle_num, float screen_height);
+    vector2 collision(Ball* ball, Player* player_one, Player* player_two, Obstacle* obstacles, int obstacle_num, float screen_height, bool hard);
 
     bool isInside(const ASGE::Sprite* sprite, double x, double y) const;
 
