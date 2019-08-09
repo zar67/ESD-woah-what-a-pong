@@ -1,13 +1,13 @@
 #include <iostream>
 #include <time.h>
-#include "Source/MyGame.h"
+#include "Source/Game.h"
 
 int main()
 {
     srand(time(0));
 
     // Game instance
-    MyGame game;
+    Game game;
 
     // If not initialised correctly, quit
     if (!game.init())

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(HelloASGE)
+project(PongClone)
 
 if(UNIX AND APPLE)
     set(PLATFORM "osx" )
@@ -23,14 +23,20 @@ set(BUILD_SHARED_LIBS false)
 
 ## itch.io and gamedata settings ##
 set(GAMEDATA_FOLDER "Data")
-set(ITCHIO_USER     "zoeRowbotham")
+set(ITCHIO_USER     "")
 
 ## files used to build this game
 add_executable(
         ${PROJECT_NAME}
         main.cpp
-        Source/MyGame.cpp
-        Source/MyGame.h Source/Ball.cpp Source/Ball.h Source/Vector.cpp Source/Vector.h Source/Player.cpp Source/Player.h)
+        Source/GameObjects/Ball.cpp Source/GameObjects/Ball.h
+        Source/GameObjects/Player.cpp Source/GameObjects/Player.h
+        Source/Game.cpp Source/Game.h
+        Source/Components/GameObject.cpp Source/Components/GameObject.h
+        Source/Components/SpriteComponent.cpp Source/Components/SpriteComponent.h
+        Source/Handlers/CollisionHandler.cpp Source/Handlers/CollisionHandler.h
+        Source/Components/MovementComponent.cpp Source/Components/MovementComponent.h
+        Source/Utility/Vector2.cpp Source/Utility/Vector2.h Source/Handlers/UIHandler.cpp Source/Handlers/UIHandler.h Source/GameObjects/Button.cpp Source/GameObjects/Button.h Source/Handlers/AIHandler.cpp Source/Handlers/AIHandler.h Source/Utility/Circle.h Source/Utility/Rectangle.h Source/Utility/Rectangle.cpp Source/Utility/Circle.cpp Source/GameObjects/Obstacle.cpp Source/GameObjects/Obstacle.h)
 
 ## library includes
 target_include_directories(
